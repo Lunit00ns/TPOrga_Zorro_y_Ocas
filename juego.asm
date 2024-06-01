@@ -1,3 +1,9 @@
+; Para correr el programa:
+; nasm mostrar.asm -f elf64
+; nasm juego.asm -f elf64
+; gcc juego.o mostrar.o -no-pie
+; ./a.out
+
 global main
 ;extern puts
 extern mostrar
