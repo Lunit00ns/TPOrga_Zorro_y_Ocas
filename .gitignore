@@ -1,0 +1,6 @@
+*.out
+*.o
+juego.asm
+mostrar.asm
+programa
+personalizacion_partida copy.asm
