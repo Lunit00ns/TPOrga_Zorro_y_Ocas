@@ -20,6 +20,7 @@ section .data
     formatInputFilCol	db	"%hi %hi",0
     msjErrorInput       db  "La casilla ingresada es inválida. Intente nuevamente.",0
     msjInputOK          db  "Casilla ingresada correctamente!",0xA,0
+    seComioOca          db  0
 
 section .bss
 	inputFilCol		    resb	50
@@ -27,14 +28,23 @@ section .bss
 	columna			    resw	1 	
     inputValido         resb    1   ;S valido N invalido
     desplaz			    resw	1
-
     primerElemTablero   resb    1
+    filactu             resb    1
+    colactu             resb    1
+    matrizTab           resb    121
+    deltax              resb    1
+    deltay              resb    1
+
 
 section .text
 entrada_zorro:
+    mov     [filactu],rsi
+    mov     [colactu],rbx
+    mov     [matrizTab],rdx
     mov     rax,[rdi]
     mov     [primerElemTablero],rax
 
+pedirMov:
     mov     rdi,msjIngFilCol
     imprimir
 
@@ -85,8 +95,155 @@ validarFyC:
 
     mov     byte[inputValido],'S'
 
+   
 validarRango:
+    ;primero calculo dez y veo si esta vacia
+    ;luego verifico si es posible el movimiento segun las reglas
 
+    mov     r8,[fila]
+    imul    r8,11
+
+    mov     rdx,[columna]
+    imul    rdx,1
+
+    add     r8,rdx
+    mov     [desplaz],r8
+    comp    [matrizTab + r8],0
+    jne     pedirMov
+
+    
+verificarMovimientoRecto:
+    sub     rdi,rdi
+    mov     rdi,[filaactu]
+    sub     rdi,[fila]
+    mov     [deltax],rdi
+
+    sub     rdi,rdi
+    mov     rdi,[colactu]
+    sub     rdi,[columna]
+    mov     [deltay],rdi
+
+    
+    cmp     [deltax],0
+    je      verificarSalto
+
+    cmp     [deltay],0
+    je      verificarSalto
+
+    ;verificacion movimiento en diagonal
+    mov     al,[deltax]
+    mov     cl,[deltay]
+    xor     al,cl 
+    jnz     pedirMov;verifico que tienen mismo signo
+    cmp     al,cl 
+    je      verificarSalto
+    jmp pedirMOv
+
+verificarSalto:
+    ;primero verifico si es un movimiento de una casilla
+    cmp     al, 1
+    je      movimientoValido
+    cmp     al, -1
+    je      movimientoValido
+    cmp     cl, 1
+    je      movimientoValido
+    cmp     cl, -1
+    je      movimientoValido
+
+    ;ahora verifico si es un salto de una celda (osea se mueve dos casillas para comer una oca)
+    
+    cmp     al, 2
+    je      saltoSimple
+    cmp     al, -2
+    je      saltoSimple
+    cmp     cl, 2
+    je      saltoSimple
+    cmp     cl, -2
+    je      saltoSimple
+
+    ;ahora verifico si es un salto de dos celdas (osea se mueve tres casillas para comer dos ocas)
+    
+    cmp     al, 3
+    je      saltoMultiple
+    cmp     al, -3
+    je      saltoMultiple
+    cmp     cl, 3
+    je      saltoMultiple
+    cmp     cl, -3
+    je      saltoMultiple
+
+;verifico si es posible que el zorro salte, para eso debe haber una oca en las posiciones correspondientes
+;para verificar si hay una oca, calculo la posicion intermedi entre el salto y la posicion del zorro
+saltoSimple:
+    mov     ax,fila
+    add     ax,filactu
+    mov     rdi,2
+    div     rdi
+    mov     rbx,al
+
+    mov     ax,columna
+    add     ax,colactu
+    div     rdi
+
+    imul    rbx,11
+
+    imul    al,1
+
+    add     rbx,al
+    comp    [matrizTab + rbx],1
+    jne     pedirMov    
+    add     seComioOca,1
+    jmp     movimientoValido
+
+saltoMultiple:;aca tengo que calcular dos posiciones intermedias
+    mov     ax,fila
+    add     ax,filactu
+    mov     rdi,2
+    div     rdi
+    mov     rbx,al
+
+    mov     ax,columna
+    add     ax,colactu
+    div     rdi
+
+    mov     dl,rbx
+    imul    dl,11
+
+    mov     cl,al
+    imul    cl,1
+
+    add     dl,cl
+    comp    [matrizTab + dl],1
+    jne     pedirMov   
+
+    mov     rsi,al
+    add     rbx,filactu
+    mov     ax,rbx
+    mov     rdi,2
+    div     rdi
+    mov     rbx,al
+
+    add     rsi,colactu
+    mov     ax,rsi
+    div     rdi
+
+    imul    rbx,11
+
+    imul    al,1
+
+    add     rbx,al
+    comp    [matrizTab + rbx],1
+    jne     pedirMov  
+    add     seComioOca,2
+    jmp     movimientoValido     
 
 invalido:
     ret
+
+movimientoValido:
+
+    mov     rax,[desplaz]
+    mov     rbx,[seComioOca]
+    mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
+    mov     rdx,[columna]
+    jmp     continuar

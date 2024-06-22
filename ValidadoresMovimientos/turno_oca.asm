@@ -99,7 +99,7 @@ validarFyC:
     mov     byte[inputValido],'S'
 
 validarRango:
-
+    
 
 invalido:
     ret
