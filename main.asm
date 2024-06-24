@@ -19,8 +19,8 @@ extern config_jugadores, entrada_zorro
 %macro mostrar_tablero 0
     mov rax, 1
     mov rdi, 1
-    mov rsi, tablero
-    mov rdx, largo
+    mov rsi, tablero2
+    mov rdx, largo2
     syscall
 %endmacro
 
@@ -29,7 +29,7 @@ section .data
                         db '| 🦊 Hola! Bienvenidos al juego del Zorro y las Ocas 🦢 |',10
                         db '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',10,0 
 
-    tablero             db  ' ', ' ',' 1',' 2',' 3',' 4',' 5',' 6',' 7',' ',10,
+    tablero2             db  ' ', ' ',' 1',' 2',' 3',' 4',' 5',' 6',' 7',' ',10,
                         db  ' ', '🟫','🟫','🟫','🟫','🟫','🟫','🟫','🟫','🟫',10, ; los emojis ocupan 4 bytes
                         db  '1', '🟫','🟫','🟫','🦢','🦢','🦢','🟫','🟫','🟫',10,
                         db  '2', '🟫','🟫','🟫','🦢','🦢','🦢','🟫','🟫','🟫',10,
@@ -39,8 +39,21 @@ section .data
                         db  '6', '🟫','🟫','🟫','⬛','⬛','⬛','🟫','🟫','🟫',10,
                         db  '7', '🟫','🟫','🟫','⬛','⬛','⬛','🟫','🟫','🟫',10,
                         db  ' ', '🟫','🟫','🟫','🟫','🟫','🟫','🟫','🟫','🟫',10
-    largo               equ $- tablero
-
+    largo2              equ $- tablero2
+    tablero       db  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+                        db  -1,-1,-1,-1,1,1,1,-1,-1,-1,-1,
+                        db  -1,-1,-1,-1,1,1,1,-1,-1,-1,-1,
+                        db  -1,-1,1,1,1,1,1,1,1,-1,-1,
+                        db  -1,-1,1,0,0,0,0,0,1,-1,-1,
+                        db  -1,-1,1,0,0,2,0,0,1,-1,-1,
+                        db  -1,-1,-1,-1,0,0,0,-1,-1,-1,-1,
+                        db  -1,-1,-1,-1,0,0,0,-1,-1,-1,-1,
+                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+    largo               equ $- tablero               
+    filaZorro           db  5; fil y columna actual del zorro
+    columnaZorro        db  4
+    ocasComidas         db  0
 section .bss
 
 section .text
@@ -52,8 +65,11 @@ main:
     call        config_jugadores
     add         rsp,8
 
-    mostrar_tablero
 
+    
+    mov         rsi,filaZorro
+    mov         rbx,columnaZorro
+    mov         rdx,tablero
     sub         rsp,8
     call        entrada_zorro
     add         rsp,8
