@@ -28,20 +28,22 @@ section .bss
     columna             resw 1     
     inputValido         resb 1   ; S valido N invalido
     desplaz             resw 1
-    primerElemTablero   resb 1
-    filaActul             resb 1
+    filaActul           resb 1
     colactu             resb 1
-    matrizTab           resb 121
+    matrizTab           resq 1
     deltax              resb 1
     deltay              resb 1
+    posOca1             resb 1
+    posOca2             resb 1
+    oca_x               resb 1
+    oca_y               resb 1
 
 section .text
 entrada_zorro:
     mov     [filaActul],rsi
-    mov     [colactu],rbx
-    mov     [matrizTab],rdx
-    mov     rax,[rdi]
-    mov     [primerElemTablero],rax
+    mov     [colactu],rdx
+    mov     [matrizTab],rdi
+
 
 pedirMov:
     mov     rdi,msjIngFilCol
@@ -60,13 +62,12 @@ pedirMov:
     mov     rdi,msjErrorInput
     imprimir
 
-    jmp     entrada_zorro
+    jmp     pedirMov
 
 continuar:
     mov     rdi,msjInputOK
     imprimir
-
-ret
+    ret
 
 validarFyC:
     mov     byte[inputValido],'N'
@@ -82,6 +83,7 @@ validarFyC:
     cmp     rax,2
     jl      invalido
 
+   
     cmp     word[fila],1
     jl      invalido
     cmp     word[fila],7
@@ -92,27 +94,36 @@ validarFyC:
     cmp     word[columna],7
     jg      invalido
 
-    mov     byte[inputValido],'S'
-
    
 validarRango:
     ;primero calculo dez y veo si esta vacia
     ;luego verifico si es posible el movimiento segun las reglas
 
-    mov     ax,[fila]
-    imul    ax,11
+    mov     bx,[fila]
+    dec     bx
+    imul    bx,bx,7
+    mov     [desplaz],bx
 
-    mov     dx,[columna]
-    add     ax,dx
-
-    lea     bx, [matrizTab]
-    add     bx,ax
+    mov     bx,[columna]
+    dec     bx
+    add     [desplaz],bx
     
-    cmp     bx,0
-    jne     pedirMov
+    mov     ebx,[desplaz]
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     rdx,[matrizTab]
+    add     rdx,rcx
 
+    mov     rax,[rdx]
     
+   
+    cmp     al,0
+    jne     invalido
+
+
 verificarMovimientoRecto:
+    sub     rax,rax
+    sub     rcx,rcx
     sub     rdi,rdi
     mov     rdi,[filaActul]
     sub     rdi,[fila]
@@ -123,7 +134,7 @@ verificarMovimientoRecto:
     sub     rdi,[columna]
     mov     [deltay],rdi
 
-    
+    sub     rdi,rdi
     cmp     byte[deltax],0
     je      verificarSalto
 
@@ -131,115 +142,149 @@ verificarMovimientoRecto:
     je      verificarSalto
 
     ;verificacion movimiento en diagonal
-    mov     ax,[deltax]
-    mov     cx,[deltay]
-    xor     ax,cx 
-    jnz     pedirMov;verifico que tienen mismo signo
-    cmp     ax,cx 
+    mov     al, byte[deltax]
+    mov     cl, byte[deltay]
+    cmp     al,cl
     je      verificarSalto
-    jmp     pedirMov
+    jmp     invalido
 
 verificarSalto:
+
     ;primero verifico si es un movimiento de una casilla
-    cmp     ax, 1
+    cmp     byte[deltax], 1
     je      movimientoValido
-    cmp     ax, -1
+    cmp     byte[deltax], -1
     je      movimientoValido
-    cmp     cx, 1
+    cmp     byte[deltay], 1
     je      movimientoValido
-    cmp     cx, -1
+    cmp     byte[deltay], -1
     je      movimientoValido
 
     ;ahora verifico si es un salto de una celda (osea se mueve dos casillas para comer una oca)
     
-    cmp     ax, 2
+    cmp     byte[deltax], 2
     je      saltoSimple
-    cmp     ax, -2
+    cmp     byte[deltax], -2
     je      saltoSimple
-    cmp     cx, 2
+    cmp     byte[deltay], 2
     je      saltoSimple
-    cmp     cx, -2
+    cmp     byte[deltay], -2
     je      saltoSimple
 
     ;ahora verifico si es un salto de dos celdas (osea se mueve tres casillas para comer dos ocas)
     
-    cmp     ax, 3
+    cmp     byte[deltax], 3
     je      saltoMultiple
-    cmp     ax, -3
+    cmp     byte[deltax], -3
     je      saltoMultiple
-    cmp     cx, 3
+    cmp     byte[deltay], 3
     je      saltoMultiple
-    cmp     cx, -3
+    cmp     byte[deltay], -3
     je      saltoMultiple
 
 ;verifico si es posible que el zorro salte, para eso debe haber una oca en las posiciones correspondientes
 ;para verificar si hay una oca, calculo la posicion intermedi entre el salto y la posicion del zorro
 saltoSimple:
-    mov     rax,[fila]
-    add     rax,[filaActul]
-    mov     rdi,2
-    div     rdi
-    mov     rbx,rax
+    
+    mov     bx,[fila]
+    add     bx,[filaActul]
+    xor     rdx,rdx
+    mov     ax,bx
+    mov     si,2
+    div     si
+    mov     bx,ax
+    
+    dec     bx
+    imul    bx,bx,7
+    mov     [posOca1],bx
 
-    mov     rax,columna
-    add     rax,colactu
-    div     rdi
+    
+    mov     bx,[columna]
+    add     bx,[colactu]
+    div     si
+    dec     ax
 
-    imul    rbx,11
+    add     [posOca1],ax
 
+    mov     ebx,[posOca1]   
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     rdx,[matrizTab]
+    add     rdx,rcx
 
+    mov     rax,[rdx]
 
-    add     rbx,rax   
-    lea     rbx, [matrizTab]
-    add     rcx,rbx
-
-    cmp     rcx,1
-    jne     pedirMov    
+    cmp     al,1
+    jne     invalido  
     add     byte[seComioOca],1
     jmp     movimientoValido
 
 saltoMultiple:;aca tengo que calcular dos posiciones intermedias
-    mov     rax,fila
-    add     rax,filaActul
-    mov     rdi,2
-    div     rdi
-    mov     rbx,rax
+    mov     bx,[fila]
+    add     bx,[filaActul]
+    xor     rdx,rdx
+    mov     ax,bx
+    mov     si,2
+    div     si
+    mov     bx,ax
+    mov     [oca_x],bx
+    dec     bx
+    imul    bx,bx,7
+    mov     [posOca1],bx
 
-    mov     rax,columna
-    add     rax,colactu
-    div     rdi
+    sub     rbx,rbx
+    mov     bx,[columna]
+    add     bx,[colactu]
+    div     si
+    mov     [oca_y],bx
+    dec     ax
 
-    mov     rdx,rbx
-    imul    rdx,11
+    add     [posOca1],ax
 
-    mov     rcx,rax
-
+    mov     ebx,[posOca1]   
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     rdx,[matrizTab]
     add     rdx,rcx
-    lea     rbx,[matrizTab]
-    add     rbx,rdx
-    cmp     rbx,1
-    jne     pedirMov   
+    mov     rax,[rdx]
 
-    mov     rsi,rax
-    add     rbx,filaActul
-    mov     rax,rbx
-    mov     rdi,2
-    div     rdi
-    mov     rbx,rax
+    cmp     al,1
+    jne     invalido   
+    add     byte[seComioOca],1
+    jmp     movimientoValido
 
-    add     rsi,colactu
-    mov     rax,rsi
-    div     rdi
+    xor     rax,rax
+    xor     rbx,rbx
+    mov     bx,[filaActul]
+    add     bx,[oca_x]
+    xor     rdx,rdx
+    mov     ax,bx
+    mov     si,2
+    div     si
+    mov     bx,ax
+    dec     bx
+    imul    bx,bx,7
+    mov     [posOca2],bx
 
-    imul    rbx,11
+    sub     rbx,rbx
+    mov     bx,[colactu]
+    add     bx,[oca_y]
+    div     si
+    dec     ax
 
-    imul    rax,1
+    add     [posOca2],ax
 
-    add     rbx,rax
-    lea     r8,[matrizTab]
-    add     r8,rbx
-    cmp     r8,1
-    jne     pedirMov  
+
+    mov     ebx,[posOca2]
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     rdx,[matrizTab]
+    add     rdx,rcx
+
+    mov     rax,[rdx]
+
+    cmp     al,1
+    jne     invalido  
     add     byte[seComioOca],2
     jmp     movimientoValido     
 
@@ -247,9 +292,9 @@ invalido:
     ret
 
 movimientoValido:
-
+    mov     byte[inputValido],'S'
     mov     rax,[desplaz]
     mov     rbx,[seComioOca]
     mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
     mov     rdx,[columna]
-    jmp     continuar
+    ret

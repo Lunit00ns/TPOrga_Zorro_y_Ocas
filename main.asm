@@ -40,20 +40,20 @@ section .data
                         db  '7', '🟫','🟫','🟫','⬛','⬛','⬛','🟫','🟫','🟫',10,
                         db  ' ', '🟫','🟫','🟫','🟫','🟫','🟫','🟫','🟫','🟫',10
     largo2              equ $- tablero2
-    tablero       db  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
-                        db  -1,-1,-1,-1,1,1,1,-1,-1,-1,-1,
-                        db  -1,-1,-1,-1,1,1,1,-1,-1,-1,-1,
-                        db  -1,-1,1,1,1,1,1,1,1,-1,-1,
-                        db  -1,-1,1,0,0,0,0,0,1,-1,-1,
-                        db  -1,-1,1,0,0,2,0,0,1,-1,-1,
-                        db  -1,-1,-1,-1,0,0,0,-1,-1,-1,-1,
-                        db  -1,-1,-1,-1,0,0,0,-1,-1,-1,-1,
-                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+         
+     tablero            db  -1,-1, 1, 1, 1,-1,-1,
+                        db  -1,-1, 1, 1, 1,-1,-1,
+                        db   1, 1, 1, 1, 1, 1, 1,
+                        db  1, 0, 0, 0, 0, 0, 1,
+                        db   1, 0, 0, 2, 0, 0, 1,
+                        db  -1,-1, 0, 0, 0,-1,-1,
+                        db  -1,-1, 0, 0, 0,-1,-1,
     largo               equ $- tablero               
     filaZorro           db  5; fil y columna actual del zorro
     columnaZorro        db  4
     ocasComidas         db  0
+    
+   
 section .bss
 
 section .text
@@ -67,9 +67,10 @@ main:
 
 
     
-    mov         rsi,filaZorro
-    mov         rbx,columnaZorro
-    mov         rdx,tablero
+    mov         rsi,[filaZorro]
+    mov         rdx, [columnaZorro]
+    sub         rdi,rdi
+    lea         rdi,tablero
     sub         rsp,8
     call        entrada_zorro
     add         rsp,8
