@@ -21,6 +21,10 @@ section .data
     msjErrorInput       db "La casilla ingresada es inválida. Intente nuevamente.",0
     msjInputOK          db "Casilla ingresada correctamente!",0xA,0
     seComioOca          db 0
+    posOca1             db 0
+    posOca2             db 0
+    posOca1tablero2     db 0
+    posOca2tablero2     db 0
 
 section .bss
     inputFilCol         resb 50
@@ -33,8 +37,7 @@ section .bss
     matrizTab           resq 1
     deltax              resb 1
     deltay              resb 1
-    posOca1             resb 1
-    posOca2             resb 1
+    
     oca_x               resb 1
     oca_y               resb 1
 
@@ -67,6 +70,16 @@ pedirMov:
 continuar:
     mov     rdi,msjInputOK
     imprimir
+    xor     rdi,rdi
+    ;aca hago copias para pasarlo al main y editar el tablero original
+    mov     rax,[desplaz]
+    mov     rbx,[seComioOca]
+    mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
+    mov     rdx,[columna]
+    mov     r8,[posOca1]
+    mov     r9,[posOca2]
+    mov     r10,[posOca1tablero2]
+    mov     r11,[posOca2tablero2]
     ret
 
 validarFyC:
@@ -197,7 +210,9 @@ saltoSimple:
     dec     bx
     imul    bx,bx,7
     mov     [posOca1],bx
-
+    add     ax,2
+    imul    ax,ax,44
+    mov     [posOca1tablero2],ax
     
     mov     bx,[columna]
     add     bx,[colactu]
@@ -205,6 +220,10 @@ saltoSimple:
     dec     ax
 
     add     [posOca1],ax
+
+    add     ax,2
+    imul    ax,ax,4
+    add     [posOca1tablero2],ax     
 
     mov     ebx,[posOca1]   
     movzx   ecx,bl 
@@ -231,6 +250,9 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     dec     bx
     imul    bx,bx,7
     mov     [posOca1],bx
+    add     ax,2
+    imul    ax,ax,44
+    mov     [posOca1tablero2],ax
 
     sub     rbx,rbx
     mov     bx,[columna]
@@ -240,6 +262,10 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     dec     ax
 
     add     [posOca1],ax
+
+    add     ax,2
+    imul    ax,ax,4
+    add     [posOca1tablero2],ax
 
     mov     ebx,[posOca1]   
     movzx   ecx,bl 
@@ -265,6 +291,9 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     dec     bx
     imul    bx,bx,7
     mov     [posOca2],bx
+    add     ax,2
+    imul    ax,ax,44
+    mov     [posOca2tablero2],ax
 
     sub     rbx,rbx
     mov     bx,[colactu]
@@ -274,6 +303,9 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
 
     add     [posOca2],ax
 
+    add     ax,2
+    imul    ax,ax,4
+    add     [posOca2tablero2],ax    
 
     mov     ebx,[posOca2]
     movzx   ecx,bl 
@@ -293,8 +325,4 @@ invalido:
 
 movimientoValido:
     mov     byte[inputValido],'S'
-    mov     rax,[desplaz]
-    mov     rbx,[seComioOca]
-    mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
-    mov     rdx,[columna]
     ret

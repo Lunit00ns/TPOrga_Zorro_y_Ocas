@@ -31,9 +31,15 @@ section .bss
 	columna			    resw	1 	
     inputValido         resb    1   ;S valido N invalido
     desplaz			    resw	1
+    desplazOca          resw    1
+    matrizTab           resq    1
+    deltax              resb 1
+    deltay              resb 1
 
 section .text
 oca_a_mover:
+    mov     [matrizTab],rdi
+
     mov     rdi,msjIngOca
     imprimir
 
@@ -43,8 +49,15 @@ oca_a_mover:
     sub     rsp,8
     call    validarFyC
     add     rsp,8
+    cmp     byte[inputValido],'S'
+    je      validarPosicion
 
-    
+continuar_oca_a_mover:    
+    cmp     byte[inputValido],'S'
+    je      entrada_oca
+    mov     rdi,msjErrorInput
+    imprimir
+    jmp     oca_a_mover
 
 entrada_oca:
     mov     rdi,msjIngFilCol
@@ -57,7 +70,9 @@ entrada_oca:
     call    validarFyC
     add     rsp,8
 
-    cmp     byte[inputValido],'🦢'
+    cmp     byte[inputValido],'S'
+    je      validarRango
+continuar_entrada_oca:
     cmp     byte[inputValido],'S'
     je      continuar
 
@@ -69,8 +84,13 @@ entrada_oca:
 continuar:
     mov     rdi,msjInputOK
     imprimir
-
-ret
+    mov     rax,[desplaz]
+    mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
+    mov     rdx,[columna]
+    mov     r8,[desplazOca]
+    mov     r9,[filaOca]
+    mov     r9,[columnaOca]
+    ret
 
 validarFyC:
     mov     byte[inputValido],'N'
@@ -98,8 +118,90 @@ validarFyC:
 
     mov     byte[inputValido],'S'
 
+validarPosicion:
+    mov     byte[inputValido],'N'
+    mov     bx,[fila]
+    dec     bx
+    imul    bx,bx,7
+    mov     [desplazOca],bx
+
+    mov     bx,[columna]
+    dec     bx
+    add     [desplazOca],bx
+    
+    mov     ebx,[desplazOca]
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     rdx,[matrizTab]
+    add     rdx,rcx
+
+    mov     rax,[rdx]
+    
+   
+    cmp     al,1
+    jne     continuar_oca_a_mover
+    mov     byte[inputValido],'S'
+    mov     byte[filaOca], byte[fila]
+    mov     byte[columnaOca], byte[columna]
+    jmp     continuar_oca_a_mover 
+
 validarRango:
+    mov     byte[inputValido],'N'
+    mov     bx,[fila]
+    dec     bx
+    imul    bx,bx,7
+    mov     [desplaz],bx
 
+    mov     bx,[columna]
+    dec     bx
+    add     [desplaz],bx
+    
+    mov     ebx,[desplaz]
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     rdx,[matrizTab]
+    add     rdx,rcx
 
+    mov     rax,[rdx]
+    
+   
+    cmp     al,0
+    jne     continuar_entrada_oca
+verificarMovimientoRecto:
+    sub     rax,rax
+    sub     rcx,rcx
+    sub     rdi,rdi
+    mov     rdi,[filaOca]
+    sub     rdi,[fila]
+    mov     [deltax],rdi
+
+    sub     rdi,rdi
+    mov     rdi,[columnaOca]
+    sub     rdi,[columna]
+    mov     [deltay],rdi
+
+    sub     rdi,rdi
+    cmp     byte[deltax],0
+    je      verificarSalto
+
+    cmp     byte[deltay],0
+    je      verificarSalto
+
+    jmp     invalido
+
+verificarSalto:
+
+    ;primero verifico si es un movimiento de una casilla
+    cmp     byte[deltax], 1
+    je      movimientoValido
+    cmp     byte[deltax], -1
+    je      movimientoValido
+    cmp     byte[deltay], -1
+    je      movimientoValido
+    jmp     continuar_entrada_oca
+
+movimientoValido:
+    mov     byte[inputValido],'S'
+    jmp     continuar_entrada_oca
 invalido:
     ret
