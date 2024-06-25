@@ -141,8 +141,11 @@ validarPosicion:
     cmp     al,1
     jne     continuar_oca_a_mover
     mov     byte[inputValido],'S'
-    mov     byte[filaOca], byte[fila]
-    mov     byte[columnaOca], byte[columna]
+    
+    mov     al, byte[fila]
+    mov     [filaOca],al
+    mov     al,[columna]
+    mov     [columnaOca], al
     jmp     continuar_oca_a_mover 
 
 validarRango:
