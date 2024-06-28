@@ -1,14 +1,14 @@
 ; para ejecutar:
 ; nasm main.asm -f elf64
-; nasm personalizacion_partida.asm -f elf64
+; nasm configuracion.asm -f elf64
+; nasm imprimir_tablero.asm -f elf64
 ; nasm ValidadoresMovimientos/turno_zorro.asm -f elf64
-; gcc main.o personalizacion_partida.o ValidadoresMovimientos/turno_zorro.o -no-pie -o programa
+; gcc main.o configuracion.o imprimir_tablero.o -no-pie -o programa
 ; ./programa
-
 global main
 extern printf
 
-extern config_jugadores, entrada_zorro, oca_a_mover
+extern config_jugadores, imprimir_tablero, entrada_zorro, oca_a_mover
 
 %macro imprimir 0
     sub rsp,8 
@@ -16,36 +16,21 @@ extern config_jugadores, entrada_zorro, oca_a_mover
     add rsp,8 
 %endmacro
 
-%macro mostrar_tablero 0
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, tablero
-    mov rdx, largo
-    syscall
-%endmacro
-
-section .data             
-    msjBienvenida       db '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',10 
+section .data
+    msjBienvenida       db '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',10
                         db '| 🦊 Hola! Bienvenidos al juego del Zorro y las Ocas 🦢 |',10
-                        db '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',10,0 
+                        db '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',10,0
+
     msjGanadorZorro     db  'El ganador es el Zorro!',10,0; podemos poner el nombre del jugador sino
-    tablero             db  -1,-1, 1, 1, 1,-1,-1,10,
-                        db  -1,-1, 1, 1, 1,-1,-1,10,
-                        db   1, 1, 1, 1, 1, 1, 1,10,
-                        db  1, 0, 0, 0, 0, 0, 1,10,
-                        db   1, 0, 0, 2, 0, 0, 1,10,
-                        db  -1,-1, 0, 0, 0,-1,-1,10,
-                        db  -1,-1, 0, 0, 0,-1,-1,10
-    largo               equ $- tablero               
-    filaZorro           db  5; fil y columna actual del zorro
-    columnaZorro        db  4
+
+    filaZorro           db  6; fil y columna actual del zorro
+    columnaZorro        db  5
     ocasComidas         db  0
     posNueva            db  0
     posOcaComida1       db  0
     posOcaComida2       db  0
     desplazamiento      db  0
 
-   
 section .bss
 
 section .text
@@ -57,7 +42,9 @@ main:
     call        config_jugadores
     add         rsp,8
 
-    mostrar_tablero
+    sub         rsp,8
+    call        imprimir_tablero
+    add         rsp,8
 
 turnoZorro:
     ;calculo el dezplazamiento para luego cambiar la posicion del zorro

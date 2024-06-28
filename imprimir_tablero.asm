@@ -1,32 +1,16 @@
-; Este archivo lo probé sólo. No está conectado a ningún otro archivo.
-global main ; <- Cambiar "main" en caso de conectarlo con un archivo
+global imprimir_tablero 
 
 section .data
-    tablero db  -1,-1, 1, 1, 1,-1,-1,
-            db  -1,-1, 1, 1, 1,-1,-1,
-            db   1, 1, 1, 1, 1, 1, 1,
-            db   1, 0, 0, 0, 0, 0, 1,
-            db   1, 0, 0, 2, 0, 0, 1,
-            db  -1,-1, 0, 0, 0,-1,-1,
-            db  -1,-1, 0, 0, 0,-1,-1
-    largo_tablero equ $- tablero
-
     pared   dw '🟫'
-    largo_pared equ $- pared
     fondo   dw '⬛'
-    largo_fondo equ $- fondo
-    oca     dw '🦢'
-    largo_oca equ $- oca
-    zorro   dw '🦊'
-    largo_zorro equ $- zorro
     
     espaciado db 10
 
 section .text
 
-main: ; <- Cambiar "main" en caso de conectarlo con un archivo
-    mov r9, largo_tablero ; Cantidad de elementos
-    lea r8, [tablero] ; Cargo el tablero
+imprimir_tablero: 
+    mov r9, 81      ; Cantidad de elementos
+    lea r8, [r15]   ; Cargo el tablero
 
 loop_start:
     cmp r9, 0
@@ -49,52 +33,56 @@ loop_end:
     inc r8 ; Avanzo al siguiente elemento del tablero
     
     ; ---- Para agregar los \n al final de cada línea ----
-    cmp r9, 7
+    cmp r9, 9
     je prnt_espaciado
-    cmp r9, 14
+    cmp r9, 18
     je prnt_espaciado
-    cmp r9, 21
+    cmp r9, 27
     je prnt_espaciado
-    cmp r9, 28
+    cmp r9, 36
     je prnt_espaciado
-    cmp r9, 35
+    cmp r9, 45
     je prnt_espaciado
-    cmp r9, 42
+    cmp r9, 54
     je prnt_espaciado
-    cmp r9, 49
+    cmp r9, 63
+    je prnt_espaciado
+    cmp r9, 72
+    je prnt_espaciado
+    cmp r9, 81
     je prnt_espaciado
 
     cmp r9, 0
-    jg loop_start ; En caso de no haber iterado todos los elementos
-    jmp terminar ; En caso de que sí
+    jg loop_start   ; En caso de no haber iterado todos los elementos
+    jmp terminar    ; En caso de que sí
 
 ; --------- Emojis -----------
 em_pared:
     mov rax, 1
     mov rdi, 1
     mov rsi, pared
-    mov rdx, largo_pared
+    mov rdx, 4
     syscall
     jmp loop_end
 em_fondo:
     mov rax, 1
     mov rdi, 1
     mov rsi, fondo
-    mov rdx, largo_fondo
+    mov rdx, 4
     syscall
     jmp loop_end
 em_oca:
     mov rax, 1
     mov rdi, 1
-    mov rsi, oca
-    mov rdx, largo_oca
+    mov rsi, r14
+    mov rdx, 4
     syscall
     jmp loop_end
 em_zorro:
     mov rax, 1
     mov rdi, 1
-    mov rsi, zorro
-    mov rdx, largo_zorro
+    mov rsi, r13
+    mov rdx, 4
     syscall
     jmp loop_end
 ; ----------------------------
