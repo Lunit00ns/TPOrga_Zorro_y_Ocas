@@ -23,8 +23,7 @@ section .data
     seComioOca          db 0
     posOca1             db 0
     posOca2             db 0
-    posOca1tablero2     db 0
-    posOca2tablero2     db 0
+
 
 section .bss
     inputFilCol         resb 50
@@ -74,12 +73,10 @@ continuar:
     ;aca hago copias para pasarlo al main y editar el tablero original
     mov     rax,[desplaz]
     mov     rbx,[seComioOca]
-    mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
+    mov     rcx,[fila]
     mov     rdx,[columna]
     mov     r8,[posOca1]
     mov     r9,[posOca2]
-    mov     r10,[posOca1tablero2]
-    mov     r11,[posOca2tablero2]
     ret
 
 validarFyC:
@@ -114,7 +111,7 @@ validarRango:
 
     mov     bx,[fila]
     dec     bx
-    imul    bx,bx,7
+    imul    bx,bx,8
     mov     [desplaz],bx
 
     mov     bx,[columna]
@@ -208,11 +205,8 @@ saltoSimple:
     mov     bx,ax
     
     dec     bx
-    imul    bx,bx,7
+    imul    bx,bx,8
     mov     [posOca1],bx
-    add     ax,2
-    imul    ax,ax,44
-    mov     [posOca1tablero2],ax
     
     mov     bx,[columna]
     add     bx,[colactu]
@@ -220,10 +214,7 @@ saltoSimple:
     dec     ax
 
     add     [posOca1],ax
-
-    add     ax,2
-    imul    ax,ax,4
-    add     [posOca1tablero2],ax     
+ 
 
     mov     ebx,[posOca1]   
     movzx   ecx,bl 
@@ -248,11 +239,8 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     mov     bx,ax
     mov     [oca_x],bx
     dec     bx
-    imul    bx,bx,7
+    imul    bx,bx,8
     mov     [posOca1],bx
-    add     ax,2
-    imul    ax,ax,44
-    mov     [posOca1tablero2],ax
 
     sub     rbx,rbx
     mov     bx,[columna]
@@ -262,10 +250,6 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     dec     ax
 
     add     [posOca1],ax
-
-    add     ax,2
-    imul    ax,ax,4
-    add     [posOca1tablero2],ax
 
     mov     ebx,[posOca1]   
     movzx   ecx,bl 
@@ -289,11 +273,8 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     div     si
     mov     bx,ax
     dec     bx
-    imul    bx,bx,7
+    imul    bx,bx,8
     mov     [posOca2],bx
-    add     ax,2
-    imul    ax,ax,44
-    mov     [posOca2tablero2],ax
 
     sub     rbx,rbx
     mov     bx,[colactu]
@@ -301,11 +282,7 @@ saltoMultiple:;aca tengo que calcular dos posiciones intermedias
     div     si
     dec     ax
 
-    add     [posOca2],ax
-
-    add     ax,2
-    imul    ax,ax,4
-    add     [posOca2tablero2],ax    
+    add     [posOca2],ax 
 
     mov     ebx,[posOca2]
     movzx   ecx,bl 

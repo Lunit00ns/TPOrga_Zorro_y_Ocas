@@ -122,7 +122,7 @@ validarPosicion:
     mov     byte[inputValido],'N'
     mov     bx,[fila]
     dec     bx
-    imul    bx,bx,7
+    imul    bx,bx,8
     mov     [desplazOca],bx
 
     mov     bx,[columna]
@@ -152,7 +152,7 @@ validarRango:
     mov     byte[inputValido],'N'
     mov     bx,[fila]
     dec     bx
-    imul    bx,bx,7
+    imul    bx,bx,8
     mov     [desplaz],bx
 
     mov     bx,[columna]
