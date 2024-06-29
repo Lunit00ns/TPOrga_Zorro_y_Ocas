@@ -35,8 +35,6 @@ Implementación del juego _El Zorro y las Ocas_ en assembler Intel 80x86. El pro
 ## Errores:
 - No funciona bien el rango válido de las opciones de emojis (ej.: si pone 33333 toma como que es una respuesta válida y agarra la opción 3)
 
-- Tira un Segmentation fault (core dumped) imprimir_tablero
-
 - Se supone que en r10 queda guardado un vector con la posición del zorro, pero no puedo hacer que lo imprima para chequear que esté bien.
 
 ### Cosas hechas hasta el momento

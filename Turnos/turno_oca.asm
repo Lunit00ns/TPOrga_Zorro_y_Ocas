@@ -24,22 +24,19 @@ section .data
     msjInputOK          db  "Casilla ingresada correctamente!",0xA,0
 
 section .bss
-    filaOca             resw    1
+	filaOca             resw    1
     columnaOca          resw    1
-	inputFilCol		    resb	50
+    inputFilCol		    resb	50
    	fila			    resw	1
 	columna			    resw	1 	
     inputValido         resb    1   ;S valido N invalido
     desplaz			    resw	1
     desplazOca          resw    1
-    matrizTab           resq    1
     deltax              resb 1
     deltay              resb 1
-
 section .text
-oca_a_mover:
-    mov     [matrizTab],rdi
 
+oca_a_mover:
     mov     rdi,msjIngOca
     imprimir
 
@@ -72,6 +69,7 @@ entrada_oca:
 
     cmp     byte[inputValido],'S'
     je      validarRango
+
 continuar_entrada_oca:
     cmp     byte[inputValido],'S'
     je      continuar
@@ -83,13 +81,10 @@ continuar_entrada_oca:
 
 continuar:
     mov     rdi,msjInputOK
+    lea         r8, [r15]
+    add         r8,[desplaz]
+    mov     r8,"O"
     imprimir
-    mov     rax,[desplaz]
-    mov     rcx,[fila];esto no se si es legal, pero no se me ocurre como hacerlo ajaja
-    mov     rdx,[columna]
-    mov     r8,[desplazOca]
-    mov     r9,[filaOca]
-    mov     r9,[columnaOca]
     ret
 
 validarFyC:
@@ -122,26 +117,20 @@ validarPosicion:
     mov     byte[inputValido],'N'
     mov     bx,[fila]
     dec     bx
-    imul    bx,bx,8
+    imul    bx,bx,9
     mov     [desplazOca],bx
 
     mov     bx,[columna]
     dec     bx
     add     [desplazOca],bx
     
-    mov     ebx,[desplazOca]
-    movzx   ecx,bl 
-    sub     eax,eax
-    mov     rdx,[matrizTab]
-    add     rdx,rcx
-
-    mov     rax,[rdx]
-    
-   
-    cmp     al,1
+    lea         r8, [r15]
+    add         r8,[desplazOca]
+    cmp         r8,"O"
     jne     continuar_oca_a_mover
     mov     byte[inputValido],'S'
     
+    mov     r8," "
     mov     al, byte[fila]
     mov     [filaOca],al
     mov     al,[columna]
@@ -149,26 +138,22 @@ validarPosicion:
     jmp     continuar_oca_a_mover 
 
 validarRango:
+
     mov     byte[inputValido],'N'
     mov     bx,[fila]
     dec     bx
-    imul    bx,bx,8
+    imul    bx,bx,9
     mov     [desplaz],bx
 
     mov     bx,[columna]
     dec     bx
     add     [desplaz],bx
     
-    mov     ebx,[desplaz]
-    movzx   ecx,bl 
-    sub     eax,eax
-    mov     rdx,[matrizTab]
-    add     rdx,rcx
-
-    mov     rax,[rdx]
+    lea         r8, [r15]
+    add         r8,[desplaz]
     
    
-    cmp     al,0
+    cmp     r8," "
     jne     continuar_entrada_oca
 verificarMovimientoRecto:
     sub     rax,rax
@@ -199,7 +184,7 @@ verificarSalto:
     je      movimientoValido
     cmp     byte[deltax], -1
     je      movimientoValido
-    cmp     byte[deltay], -1
+    cmp     byte[deltay], 1
     je      movimientoValido
     jmp     continuar_entrada_oca
 

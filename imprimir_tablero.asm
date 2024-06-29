@@ -4,16 +4,15 @@ section .data
     fila    db " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", 10
     largo_fila equ $ - fila
     pared   dw '🟫'
-    fondo   dw '⬛'
-    
+    fondo   dw '⬛'    
     espaciado db 10
 
 section .text
 
 imprimir_tablero:
     lea rbx, [fila + 2] ; Aux de filas
-    mov r9, 81      ; Cantidad de elementos
-    lea r8, [r15]   ; Cargo el tablero
+    mov r9, 81          ; Cantidad de elementos
+    lea r8, [r15]       ; Cargo el tablero
     
     mov rax, 1
     mov rdi, 1
@@ -24,7 +23,7 @@ imprimir_tablero:
 agregar_num:
     mov rax, 1
     mov rdi, 1
-    mov rsi, rbx ; donde está "rbx" antes estaba 
+    mov rsi, rbx
     mov rdx, 2
     syscall
 
@@ -35,13 +34,13 @@ loop_start:
     je terminar
 
     ; ---- Condiciones de Emojis ----
-    cmp byte[r8], -1
+    cmp byte[r8], '-'
     je em_pared
-    cmp byte[r8], 0
+    cmp byte[r8], ' '
     je em_fondo
-    cmp byte[r8], 1
+    cmp byte[r8], 'O'
     je em_oca
-    cmp byte[r8], 2
+    cmp byte[r8], 'X'
     je em_zorro
     ; En caso de no coincidir con ningún número, habría que
     ; agregar un caso de "Excepción" (No sé si puede suceder).
@@ -122,3 +121,5 @@ terminar:
     mov rsi, espaciado
     mov rdx, 1
     syscall
+    
+    ret

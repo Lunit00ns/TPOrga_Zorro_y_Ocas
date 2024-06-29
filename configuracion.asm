@@ -9,7 +9,8 @@ extern gets
     add rsp,8 
 %endmacro
 
-%macro leerInput 0
+%macro leerInput 1
+    mov rdi, %1
     sub rsp,8
     call gets
     add rsp,8
@@ -54,49 +55,45 @@ section .data
     zorroSeleccionado   db   '🦊',0
     ocaSeleccionada     db   '🦢',0
 
-    tableroArriba       db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1, 1, 1, 1, 1, 1, 1, 1,-1,
-                        db  -1, 1, 0, 0, 0, 0, 0, 1,-1,
-                        db  -1, 1, 0, 0, 2, 0, 0, 1,-1,
-                        db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
-                        db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
-                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1
-    zorroArriba         db  6, 5
+    tableroArriba       db  '-','-','-','-','-','-','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','O','O','O','O','O','O','O','-',
+                        db  '-','O',' ',' ',' ',' ',' ','O','-',
+                        db  '-','O',' ',' ','X',' ',' ','O','-',
+                        db  '-','-','-',' ',' ',' ','-','-','-',
+                        db  '-','-','-',' ',' ',' ','-','-','-',
+                        db  '-','-','-','-','-','-','-','-','-'
 
-    tableroDerecha      db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1, 0, 0, 1,-1,-1,-1,
-                        db  -1, 0, 0, 0, 0, 1, 1, 1,-1,
-                        db  -1, 0, 0, 2, 0, 1, 1, 1,-1,
-                        db  -1, 0, 0, 0, 0, 1, 1, 1,-1,
-                        db  -1,-1,-1, 0, 0, 1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1
-    zorroDerecha        db  5, 4
+    tableroDerecha      db  '-','-','-','-','-','-','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-',' ',' ','O','-','-','-',
+                        db  '-',' ',' ',' ',' ','O','O','O','-',
+                        db  '-',' ',' ','X',' ','O','O','O','-',
+                        db  '-',' ',' ',' ',' ','O','O','O','-',
+                        db  '-','-','-',' ',' ','O','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-','-','-','-','-','-','-'
 
-    tableroAbajo        db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
-                        db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
-                        db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
-                        db  -1, 1, 0, 0, 2, 0, 0, 1,-1,
-                        db  -1, 1, 0, 0, 0, 0, 0, 1,-1,
-                        db  -1, 1, 1, 1, 1, 1, 1, 1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1
-    zorroAbajo          db  4, 5
+    tableroAbajo        db  '-','-','-','-','-','-','-','-','-',
+                        db  '-','-','-',' ',' ',' ','-','-','-',
+                        db  '-','-','-',' ',' ',' ','-','-','-',
+                        db  '-','O',' ',' ','X',' ',' ','O','-',
+                        db  '-','O',' ',' ',' ',' ',' ','O','-',
+                        db  '-','O','O','O','O','O','O','O','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-','-','-','-','-','-','-'
 
-    tableroIzquierda    db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1, 1, 0, 0,-1,-1,-1,
-                        db  -1, 1, 1, 1, 0, 0, 0, 0,-1,
-                        db  -1, 1, 1, 1, 0, 2, 0, 0,-1,
-                        db  -1, 1, 1, 1, 0, 0, 0, 0,-1,
-                        db  -1,-1,-1, 1, 0, 0,-1,-1,-1,
-                        db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
-                        db  -1,-1,-1,-1,-1,-1,-1,-1,-1
-    zorroIzquierda      db  5, 6
+    tableroIzquierda    db  '-','-','-','-','-','-','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-','O',' ',' ','-','-','-',
+                        db  '-','O','O','O',' ',' ',' ',' ','-',
+                        db  '-','O','O','O',' ','X',' ',' ','-',
+                        db  '-','O','O','O',' ',' ',' ',' ','-',
+                        db  '-','-','-','O',' ',' ','-','-','-',
+                        db  '-','-','-','O','O','O','-','-','-',
+                        db  '-','-','-','-','-','-','-','-','-'
 
     formatoOpcion       db  '%hi',0
 
@@ -110,25 +107,24 @@ section .bss
     OpcionTablero       resb 1
 
     OpcionValida        resb 1 
+
+    movimientos         resb 8
     
 section .text
 
 config_jugadores:
     mov		    rdi,msjNombreJugador1
     imprimir
-    mov		    rdi,Jugador1
-    leerInput
+    leerInput Jugador1
 
     mov		    rdi,msjNombreJugador2
     imprimir
-    mov		    rdi,Jugador2
-    leerInput
+    leerInput Jugador2
 
 desea_configurar:
     mov         rdi,msjPersonalizar
     imprimir
-    mov         rdi,OpcionPerso
-    leerInput
+    leerInput OpcionPerso
 
 validar_opcion_perso:
     mov         rdi,OpcionPerso
@@ -148,8 +144,7 @@ config_emojis:
 
     mov         rdi, msjEmojis
     imprimir
-    mov         rdi, OpcionEmojis
-    leerInput
+    leerInput OpcionEmojis
 
     sub         rsp,8
     call        validar_opcion_emojis 
@@ -210,8 +205,7 @@ emojis_seleccionados:
 config_tablero:
     mov         rdi, msjTablero
     imprimir
-    mov         rdi, OpcionTablero
-    leerInput
+    leerInput OpcionTablero
 
     sub         rsp,8
     call        validar_opcion_tablero
@@ -259,34 +253,29 @@ tablero_seleccionado:
 seleccionar_arriba:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroArriba
-    mov         r10, zorroArriba
     mov         r11, -9
     ret
 
 seleccionar_derecha:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroDerecha
-    mov         r10, zorroDerecha
     mov         r11, 1
     ret
 
 seleccionar_abajo:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroAbajo
-    mov         r10, zorroAbajo
     mov         r11, 9
     ret
 
 seleccionar_izquierda:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroIzquierda
-    mov         r10, zorroIzquierda
     mov         r11, -1
     ret
 
 config_predeterminada:
     mov         r15, tableroArriba
-    mov         r10, [zorroArriba]
     mov         r11, -9
     mov         rdi, msjPersoDefault
     imprimir
@@ -300,6 +289,9 @@ terminar_config:
     mov         rdx, ocaSeleccionada
     imprimir
 
+    mov         rsi, Jugador1 ; Guardo los nombres de los jugadores para copiarlos en variables en el main
+    mov         rdi, Jugador2 
+    
     ret
 
 invalido:

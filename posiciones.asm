@@ -1,60 +1,43 @@
-global posicion_zorro
-global busqueda_tablero
-
-extern printf
-%macro imprimir 0
-    sub rsp, 8 
-    call printf
-    add rsp, 8 
-%endmacro
+global pos_zorro
 
 section .data
-    cont_fila db 0
-    cont_col db 0
     v_invalido db -2
-    posZorro            db '(%hi, %hi)',10,0
-
-section .bss
 
 section .text
 
-posicion_zorro:
-    mov         rax, 9 ; n° de filas
-    mov         rbx, 9 ; n° de columnas
-    mov         rcx, 0 ; fila actual
-    mov         rdx, 0 ; columna actual
-
-loop_externo:
-    mov         rdx, 0 ; reinicio columna actual
-
-loop_interno:
-    lea r8, [r15]
-    cmp byte[r8], 2
-    je zorro_encontrado
+pos_zorro:
+    mov rcx, 1
+    mov rbx, 1
     
-;   test print
-    mov         rdi, posZorro
-    mov         rsi, [cont_fila]
-    mov         rdx, [cont_col]
-    imprimir
-;   test print
+    lea r8, [r15]
 
+bucle:
+    cmp byte[r8], 'X'
+    je encontrado
     inc r8
-    add dword[cont_col], 1
-    cmp byte[cont_col], 8
-    je zorro_encontrado
-    ;jg aum_fila
-    jmp loop_interno
 
-aum_fila:
-     dword[cont_fila], 1
-    mov byte[cont_col], 0
-    jmp loop_interno
+    inc rcx
+    cmp rcx, 10
+    je cambio_fila
 
-zorro_encontrado:
-    ; en este punto rcx tiene la fila y rdx la columna donde está el zorro
-    mov         cl, byte[rcx]  ; Guardar fila en cl (como un byte)
-    mov         dl, byte[rdx]  ; Guardar columna en dl (como un byte)
+    jmp bucle
+
+cambio_fila:
+    inc rbx
+
+    cmp rbx, 10
+    je no_encontrado
+
+    mov rcx, 1
+    jmp bucle
+
+no_encontrado:
+    mov rbx, -1
+    mov rcx, -1
+    
+    ret
+
+encontrado:
     ret
 
 busqueda_tablero:

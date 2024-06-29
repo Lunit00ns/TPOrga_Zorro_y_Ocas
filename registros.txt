@@ -1,17 +1,15 @@
 - Generales -
 r8      - Aux
-r9      - Aux
-r10     - Posición zorro
 r11     - Dirección inválida Oca (-1, -9, 1, 9)
-r12     -       EstadisticasZorro (arreglo de 8 elementos) --> no está todavía
+r12     - EstadisticasZorro (arreglo de 8 elementos) --> no está todavía
 r13     - EmojiOca
 r14     - EmojiZorro 
 r15     - Tablero
 
 - Auxiliares -
 rax     - Aux
-rbx     - Aux
-rcx     - Aux
+rbx     - Aux --> filaZorro
+rcx     - Aux --> columnaZorro
 rdx     - Aux
 
 rsi     - Aux
