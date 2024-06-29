@@ -1,6 +1,8 @@
 global imprimir_tablero 
 
 section .data
+    fila    db " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", 10
+    largo_fila equ $ - fila
     pared   dw '🟫'
     fondo   dw '⬛'
     
@@ -8,9 +10,25 @@ section .data
 
 section .text
 
-imprimir_tablero: 
+imprimir_tablero:
+    lea rbx, [fila + 2] ; Aux de filas
     mov r9, 81      ; Cantidad de elementos
     lea r8, [r15]   ; Cargo el tablero
+    
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, fila
+    mov rdx, largo_fila
+    syscall
+
+agregar_num:
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, rbx ; donde está "rbx" antes estaba 
+    mov rdx, 2
+    syscall
+
+    add rbx, 2
 
 loop_start:
     cmp r9, 0
@@ -95,7 +113,7 @@ prnt_espaciado:
     mov rdx, 1
     syscall
 
-    jmp loop_start
+    jmp agregar_num
 
 terminar:
     ; ---- Agrego un \n al final ----
@@ -103,9 +121,4 @@ terminar:
     mov rdi, 1
     mov rsi, espaciado
     mov rdx, 1
-    syscall
-    
-    ; ---- Esto termina el programa ----
-    mov rax, 60
-    xor rdi, rdi
     syscall

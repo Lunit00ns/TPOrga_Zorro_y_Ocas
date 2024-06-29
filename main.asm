@@ -8,9 +8,10 @@
 global main
 extern printf
 
-extern config_jugadores, imprimir_tablero, entrada_zorro, oca_a_mover
+extern config_jugadores, imprimir_tablero, entrada_zorro, oca_a_mover, busqueda_tablero
 
 %macro imprimir 0
+    xor rax,rax
     sub rsp,8 
     call printf
     add rsp,8 
@@ -23,8 +24,8 @@ section .data
 
     msjGanadorZorro     db  'El ganador es el Zorro!',10,0; podemos poner el nombre del jugador sino
 
-    filaZorro           db  6; fil y columna actual del zorro
-    columnaZorro        db  5
+    posZorro            db '(%hi, %hi)',10,0
+
     ocasComidas         db  0
     posNueva            db  0
     posOcaComida1       db  0
@@ -32,105 +33,103 @@ section .data
     desplazamiento      db  0
 
 section .bss
+    filaZorro           resb 1
+    columnaZorro        resb 1
 
 section .text
 main:
-    mov         rdi,msjBienvenida
+    mov         rdi, msjBienvenida
     imprimir
 
-    sub         rsp,8
+    sub         rsp, 8
     call        config_jugadores
-    add         rsp,8
+    add         rsp, 8
 
-    sub         rsp,8
+    sub         rsp, 8
     call        imprimir_tablero
-    add         rsp,8
+    add         rsp, 8
 
 turnoZorro:
     ;calculo el dezplazamiento para luego cambiar la posicion del zorro
     ;como tenemos dos tableros con distintos elementos lo calculo para ambos
-    mov     bx,[filaZorro]
-    dec     bx
-    imul    bx,bx,8
-    mov     [desplazamiento],bx
-
-    mov     bx,[columnaZorro]
-    dec     bx
-    add     [desplazamiento],bx
+    mov         bx, [filaZorro]
+    dec         bx
+    imul        bx, bx, 8
+    mov         [desplazamiento], bx
+    mov         bx, [columnaZorro]
+    dec         bx
+    add         [desplazamiento], bx
 
     ;ahora empieza el turno
-    mov         rsi,[filaZorro]
+    mov         rsi, [filaZorro]
     mov         rdx, [columnaZorro]
-    sub         rdi,rdi
-    lea         rdi,tablero
-    sub         rsp,8
+    sub         rdi, rdi
+    lea         rdi, r15
+    sub         rsp, 8
     call        entrada_zorro
-    add         rsp,8
+    add         rsp, 8
     
     mov         [posNueva], rax
-    mov         [filaZorro], rcx 
+    mov         [filaZorro], rcx
     mov         [columnaZorro], rdx
     mov         [posOcaComida1], r8
     mov         [posOcaComida2], r9
     
-    add         byte[ocasComidas],bl; si no comio nada  suma cero
-    cmp         bl,1
+    add         byte[ocasComidas], bl; si no comio nada  suma cero
+    cmp         bl, 1
     je          manejoOcasComidas1
-    cmp         bl,2
+    cmp         bl, 2
     je          manejoOcasComidas2
-continuar:    
+continuar:
     ;cambio de posicion al zorro
     
-    mov         ebx,[posNueva]
+    mov         ebx, [posNueva]
     
-    movzx       ecx,bl 
-    sub         eax,eax
-    mov         rax,0
-    add         rax,rcx
-    mov         byte[tablero +rax], 2
+    movzx       ecx, bl
+    sub         eax, eax
+    mov         rax, 0
+    add         rax, rcx
+    mov         byte[r15 + rax], 2
 
-    mov         ebx,[desplazamiento]
-    movzx       ecx,bl 
-    sub         eax,eax
-    mov         rax,0
-    add         rax,rcx
-    mov         byte[tablero + rax],0
+    mov         ebx, [desplazamiento]
+    movzx       ecx, bl
+    sub         eax, eax
+    mov         rax, 0
+    add         rax, rcx
+    mov         byte[r15 + rax], 0
 
     mostrar_tablero
 
-    cmp     byte[ocasComidas],12
-    je      ganadorZorro
-
+    cmp         byte[ocasComidas], 12
+    je          ganadorZorro
 
 turnoOcas:
-    
-
     ret
 
-
 manejoOcasComidas1:
-    mov     rbx, [posOcaComida1]
-    movzx   ecx, bl
-    sub     eax,eax
-    mov     rax,[tablero]
-    add     rax,rcx
-    mov     byte[rax], 0
+    mov         rbx, [posOcaComida1]
+    movzx       ecx, bl
+    sub         eax, eax
+    mov         rax, [r15]
+    add         rax, rcx
+    mov         byte[rax], 0
+
 manejoOcasComidas2:
-    mov     rbx, [posOcaComida1]
-    movzx   ecx, bl
-    sub     eax,eax
-    mov     rax,[tablero]
-    add     rax,rcx
-    mov     byte[rax], 0
+    mov         rbx, [posOcaComida1]
+    movzx       ecx, bl
+    sub         eax, eax
+    mov         rax, [r15]
+    add         rax, rcx
+    mov         byte[rax], 0
     
-    mov     rbx, [posOcaComida2]
-    movzx   ecx, bl
-    sub     eax,eax
-    mov     rax,[tablero]
-    add     rax,rcx
-    mov     byte[rax], 0
+    mov         rbx, [posOcaComida2]
+    movzx       ecx, bl
+    sub         eax, eax
+    mov         rax, [r15]
+    add         rax, rcx
+    mov         byte[rax], 0
 
 ganadorZorro:
-    mov     rdi,msjGanadorZorro
+    mov         rdi, msjGanadorZorro
     imprimir
     ret

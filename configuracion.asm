@@ -20,10 +20,20 @@ section .data
     msjNombreJugador2   db  'Ingresá el nombre del Jugador 2 - Ocas: ',0
 
     msjPersonalizar     db  '¿Desea personalizar la partida? s/n: ',0
-    msjErrorPerso       db  'Opción inválida. Ingresá "s" si desea personalizar, "n" para una configuarción predeterminada',10,0
-
     msjPersoOK          db  'Se eligió la opción de personalizar el juego!',10,0
     msjPersoDefault     db  'Se utilizará una configuración de juego predeterminada.',10,0
+    msjJugadoresOK      db  'Personalización de jugadores correcta! %s será el Zorro %s y %s jugará con las Ocas %s',10,0
+    msjPartidaOK        db  'La partida fue configurada correctamente!',10,0
+
+    msjErrorPerso       db  'Opción inválida. Ingresá "s" si queres personalizar, "n" para una configuarción predeterminada',10,0
+    msjErrorEmoji       db  'Opción inválida. Ingresá un número entre 1 y 3',10,0
+    msjErrorTablero     db  'Opción inválida. Ingresá un número entre 1 y 4',10,0
+
+    msjFinal            db  '',10
+                        db  ' ~~~~~~~~~~~~~~~~~',10
+                        db  ' | %s A jugar %s |',10
+                        db  ' ~~~~~~~~~~~~~~~~~',10
+                        db  '',10,0
 
     msjEmojis           db  'Seleccioná el estilo de emojis:',10
                         db  '1. Zorro: 🦊 | Ocas: 🦢',10
@@ -31,23 +41,18 @@ section .data
                         db  '3. Zorro: 🐈 | Ocas: 🐀',10
                         db  'Opción: ',0
 
-    formatoOpcion       db  '%hi',0
-    formOpcionT         db  '%hi',0
-    msjErrorEmoji       db  'Opción inválida. Ingresá un número entre 1 y 3',10,0
-    iconosZorro         db  '🦊','🐒','🐈',0
-    iconosOca           db  '🦢','🍌','🐀',0
-
-    zorroSeleccionado   db   '🦊',0
-    ocaSeleccionada     db   '🦢',0
-
-    msjJugadoresOK      db  'Personalización de jugadores correcta! %s será el Zorro %s y %s jugará con las Ocas %s',10,0
-    
     msjTablero          db  'Elija la orientación del tablero:',10
                         db  '1. Arriba',10
                         db  '2. Derecha',10
                         db  '3. Abajo',10
                         db  '4. Izquierda',10
                         db  'Opción: ',0
+
+    iconosZorro         db  '🦊','🐒','🐈',0
+    iconosOca           db  '🦢','🍌','🐀',0
+
+    zorroSeleccionado   db   '🦊',0
+    ocaSeleccionada     db   '🦢',0
 
     tableroArriba       db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
@@ -58,6 +63,7 @@ section .data
                         db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
                         db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
                         db  -1,-1,-1,-1,-1,-1,-1,-1,-1
+    zorroArriba         db  6, 5
 
     tableroDerecha      db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
@@ -68,6 +74,7 @@ section .data
                         db  -1,-1,-1, 0, 0, 1,-1,-1,-1,
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
                         db  -1,-1,-1,-1,-1,-1,-1,-1,-1
+    zorroDerecha        db  5, 4
 
     tableroAbajo        db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
                         db  -1,-1,-1, 0, 0, 0,-1,-1,-1,
@@ -78,6 +85,7 @@ section .data
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
                         db  -1,-1,-1,-1,-1,-1,-1,-1,-1
+    zorroAbajo          db  4, 5
 
     tableroIzquierda    db  -1,-1,-1,-1,-1,-1,-1,-1,-1,
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
@@ -88,16 +96,9 @@ section .data
                         db  -1,-1,-1, 1, 0, 0,-1,-1,-1,
                         db  -1,-1,-1, 1, 1, 1,-1,-1,-1,
                         db  -1,-1,-1,-1,-1,-1,-1,-1,-1
+    zorroIzquierda      db  5, 6
 
-    msjErrorTablero     db  'Opción inválida. Ingresá un número entre 1 y 4',10,0
-
-    msjPartidaOK        db  'La partida fue configurada correctamente!',10,0
-
-    msjFinal            db  '',10
-                        db  ' ~~~~~~~~~~~~~~~~~',10
-                        db  ' | %s A jugar %s |',10
-                        db  ' ~~~~~~~~~~~~~~~~~',10
-                        db  '',10,0
+    formatoOpcion       db  '%hi',0
 
 section .bss
     Jugador1            resb 256
@@ -106,10 +107,9 @@ section .bss
     OpcionPerso         resb 1
 
     OpcionEmojis        resb 1
-    OpcionValida        resb 1 
-
     OpcionTablero       resb 1
-    OpcionValidaTablero resb 1
+
+    OpcionValida        resb 1 
     
 section .text
 
@@ -217,7 +217,7 @@ config_tablero:
     call        validar_opcion_tablero
     add         rsp,8
 
-    cmp         byte [OpcionValidaTablero], 'S'
+    cmp         byte [OpcionValida], 'S'
     je          tablero_seleccionado
 
     mov         rdi, msjErrorTablero
@@ -226,10 +226,10 @@ config_tablero:
     jmp         config_tablero
 
 validar_opcion_tablero:
-    mov         byte[OpcionValidaTablero],'N'
+    mov         byte[OpcionValida],'N'
 
     mov         rdi,OpcionTablero
-    mov         rsi,formOpcionT
+    mov         rsi,formatoOpcion
     mov         rdx,OpcionTablero
     
     sub		    rsp,8
@@ -257,27 +257,37 @@ tablero_seleccionado:
     jmp terminar_config
     
 seleccionar_arriba:
-    mov         byte[OpcionValidaTablero],'S'
-    mov r15, tableroArriba
+    mov         byte[OpcionValida],'S'
+    mov         r15, tableroArriba
+    mov         r10, zorroArriba
+    mov         r11, -9
     ret
 
 seleccionar_derecha:
-    mov         byte[OpcionValidaTablero],'S'
-    mov r15, tableroDerecha
+    mov         byte[OpcionValida],'S'
+    mov         r15, tableroDerecha
+    mov         r10, zorroDerecha
+    mov         r11, 1
     ret
 
 seleccionar_abajo:
-    mov         byte[OpcionValidaTablero],'S'
-    mov r15, tableroAbajo
+    mov         byte[OpcionValida],'S'
+    mov         r15, tableroAbajo
+    mov         r10, zorroAbajo
+    mov         r11, 9
     ret
 
 seleccionar_izquierda:
-    mov         byte[OpcionValidaTablero],'S'
-    mov r15, tableroIzquierda
+    mov         byte[OpcionValida],'S'
+    mov         r15, tableroIzquierda
+    mov         r10, zorroIzquierda
+    mov         r11, -1
     ret
 
 config_predeterminada:
     mov         r15, tableroArriba
+    mov         r10, [zorroArriba]
+    mov         r11, -9
     mov         rdi, msjPersoDefault
     imprimir
 
