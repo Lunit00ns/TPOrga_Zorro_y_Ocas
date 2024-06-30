@@ -1,6 +1,8 @@
 global busq_tablero
 
 section .data
+    fila db 0
+    columna db 0
 
 section .text
 
@@ -22,6 +24,10 @@ busq_filcol:
     jl invalido
     cmp rcx, 9
     jg invalido
+
+    ; Guardo los valores de fila y columna para no modificarlos al devolver un valor
+    mov [fila], rbx
+    mov [columna], rcx
 
     ; Cargo el tablero y realizo el desplazamiento
     lea rax, [r15] ; Cargo el tablero
@@ -61,13 +67,18 @@ invalido:
     ret
 pared:
     mov rax, '-'
-    ret
+    jmp devolver_valores
 fondo:
     mov rax, ' '
-    ret
+    jmp devolver_valores
 oca:
     mov rax, 'O'
-    ret
+    jmp devolver_valores
 zorro:
     mov rax, 'X'
+    jmp devolver_valores
+
+devolver_valores:
+    mov rbx, fila
+    mov rcx, columna
     ret
