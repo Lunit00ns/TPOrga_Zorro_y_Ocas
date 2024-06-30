@@ -1,4 +1,4 @@
-global busqueda_tablero
+global busq_tablero
 
 section .data
 
@@ -7,12 +7,12 @@ section .text
 ; Este archivo tiene como función devolver lo que se encuentre en cierta posición del tablero.
 ; (En caso de ser una posición no válida devuelve -1)
 
-busqueda_tablero:
+busq_tablero:
     ; En caso de querer buscar por índice, el rax debe estar vacío
     cmp rax, 0
     je busqueda_indice
 
-busqueda_filcol:
+busq_filcol:
     ; Reviso si la posición está dentro del tablero
     cmp rbx, 1
     jl invalido
@@ -43,7 +43,7 @@ verificar:
     je zorro
     jmp invalido
 
-busqueda_indice:
+busq_indice:
     ; Reviso si la posición está dentro del tablero
     cmp rdx, 0
     jl invalido
