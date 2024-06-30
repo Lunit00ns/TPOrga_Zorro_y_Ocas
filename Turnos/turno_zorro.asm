@@ -2,7 +2,7 @@ global entrada_zorro
 
 extern busqueda_tablero, imprimir_tablero
 extern gets, printf, sscanf
-extern  pos_zorro
+extern pos_zorro
 
 %macro imprimir 0
     sub rsp,8 
@@ -17,16 +17,15 @@ extern  pos_zorro
 %endmacro
 
 section .data             
-    msjIngFilCol        db "¿Dónde desea mover al zorro? ",0xA
-                        db "Ingrese fila (1 a 7) y columna (1 a 7) separados por un espacio: ",0
+    msjIngFilCol        db "¿Dónde desea mover al zorro?",10
+                        db "~ Ingrese fila (2 a 8) y columna (2 a 8) separados por un espacio: ",0
     formatInputFilCol   db "%hi %hi",0
-    msjErrorInput       db "La casilla ingresada es inválida. Intente nuevamente.",0
-    msjInputOK          db "Casilla ingresada correctamente!",0xA,0
+    msjErrorInput       db "La casilla ingresada es inválida ✖️ Intente nuevamente.",10,0
+    msjInputOK          db "Casilla ingresada correctamente ✔️",10,0
     seComioOca          db 0
     posOca1             db 0
     salir               db 'N'
-    turno               db 1
-
+    ;turno               db "1"
 
 section .bss
     inputFilCol         resb 50     
@@ -38,9 +37,9 @@ section .bss
     columna             resw 1
     matriz              resq 1
     
-
 section .text
 entrada_zorro:
+    mov     r10,"1"
 pedirMov:
     mov     rdi,msjIngFilCol
     imprimir
@@ -54,7 +53,7 @@ pedirMov:
 
     cmp     byte[inputValido],'S'
     je      continuar
-    cmp     byte[salir],'S'
+    cmp     byte[inputFilCol],'S'
     je      fin
 
     mov     rdi,msjErrorInput
@@ -88,35 +87,32 @@ cambiarposiciones:
     ;tiene turno extra?
     cmp         byte[seComioOca],1
     je          cambiarposicionesOca
+    cmp         byte[seComioOca],2
+    je          cambiarposicionesOca
     
-    mov         rdi,msjInputOK
-    imprimir  
     
 fin:    
     mov     rbx,[seComioOca]
-    mov     rdi,[salir]
+    mov     dil,byte[inputFilCol]
+    mov     r10,"1"
+    mov     byte[seComioOca],0
     ret
 
 cambiarposicionesOca:
-    cmp     byte[turno],2
-    je      invalido
     mov     r9w,[posOca1]
     mov     byte[r15 + r9]," "
-    
-    mov     bl,[turno]
-    add     bl,1
-    mov     [turno],bl
+    cmp     byte[r10],"2"
+    je      invalido
+    mov     r10,"2"
     call    imprimir_tablero
     jmp       pedirMov
     ret
-finPartida:
-    mov     byte[salir],'S'
-    ret
+
 
 validarFyC:
     mov     byte[inputValido],'N'
     cmp     byte[inputFilCol],'S'
-    je      finPartida
+    je      invalido
 
     mov     rdi,inputFilCol
     mov     rsi,formatInputFilCol
@@ -182,10 +178,14 @@ verificarMovimientoRecto:
 
 
     ;verificacion movimiento en diagonal
-    cmp     bl,cl
-    je      verificarSalto
-    jmp     invalido
-
+    cmp     bl,-2
+    je     invalido
+    cmp     bl,2
+    je     invalido
+    cmp     cl,-2
+    je     invalido
+    cmp     cl,2
+    je     invalido
 verificarSalto:
     xor    rdi,rdi
     ;primero verifico si es un movimiento de una casilla
@@ -214,10 +214,6 @@ verificarSalto:
 ;verifico si es posible que el zorro salte, para eso debe haber una oca en las posiciones correspondientes
 ;para verificar si hay una oca, calculo la posicion intermedia entre el salto y la posicion del zorro
 saltoSimpleAbajo:
-    ;espero que funcione :)
-    cmp     bl,cl
-    je     invalido
-
 
     mov     bx,[fila]
     sub     bx,2

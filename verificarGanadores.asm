@@ -1,140 +1,147 @@
-global vericar_ganadores
+global verificar_ganadores
 
-extern  pos_zorro, gano_Zorro, gano_Oca, turno
+extern  pos_zorro, contar_ocas, busq_tablero
 
-%macro ifDosParametros 2
-    cmp %1, %2
-    jg bucle_externo     ; Salta a bucle_externo si %1 > %2
-    jl aumenta_externo   ; Salta a aumenta_externo si %1 < %2
-    je bucle_externo     ; Salta a bucle_externo si %1 == %2
-%endmacro
 
 section .data
-ocasComidas         db  0
-zorro               db  0
-contador_apariciones    db 0
+    msjInputOK          db "Casilla ingresada correctamente!",0xA,0
+    ocasComidas         db  0
+    zorro               db  0
+    contador_apariciones    db 0
+    
 section .bss
 section .text
+verificar_ganadores:
 
-vericar_ganadores:
-call ganador_zorro
+verif_perdio_ocas:
+    sub     rsp, 8
+    call    contar_ocas   ;rcx
+    add     rsp, 8
+    cmp     rcx,5
+    jle     gano_zorro ;   rcx <= 5
 
-ganador_zorro:
-    mov     rdx, -1
-    mov     r8,r15
-    call hayOcas
+verif_perdio_zorro:
+    call pos_zorro
+    dec rbx
+    dec rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
 
-hayOcas:
-    inc     rdx
-    cmp     rdx,81
-    je      comparacion_ocas
-    add     r8,rdx
-    cmp     r8,'O'
-    je      aumentaOcas
-    
+    call pos_zorro
+    dec rbx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
 
-aumentaOcas:
-    mov     rax,ocasComidas
-    add     rax,1
-    mov     [ocasComidas],rax
-    call    hayOcas
-
-comparacion_ocas:
-    cmp         byte[ocasComidas],0
-    je          gano_Zorro
-    call        ganador_oca
-    
-ganador_oca:
-    call    turno
-;     sub     rsp, 8
-;     call pos_zorro       ; rcx(col), rbx(fil)
-;     add     rsp,8
-
-;     dec rbx
-;     imul rbx, rbx, 9
-;     dec rcx
-;     add rbx, rcx
-    
-;     sub rbx,10
-;     call    bucle_cuadrado
-    
+    call pos_zorro
+    dec rbx
+    inc rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
+    ; ----
+    call pos_zorro
+    dec rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
 
 
-; bucle_cuadrado:
+    call pos_zorro
+    inc rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
+    ; ----
+    call pos_zorro
+    inc rbx
+    dec rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
 
-;     mov     r8,[r15 + rbx]
-;     inc     rbx
-;     cmp     r8,'O'
-;     je      incrementa
-;     cmp     r8,'-'
-;     je      incrementa
-;     ;si no hay pared y oca a donde va 
+    call pos_zorro
+    inc rbx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
 
-; incrementa:
-;     inc     byte[contador_apariciones]
+    call pos_zorro
+    inc rbx
+    inc rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
 
-;     cmp     byte[contador_apariciones],3
-;     je      incrementar_rbx_en_7 ;llego a la iesquina superio derecha
+verif_salto1:
+    call pos_zorro
+    dec rbx
+    call busq_tablero
+    cmp rax, 'O'
+    je verif_arriba
+verif_salto2:
+    call pos_zorro
+    dec rcx
+    call busq_tablero
+    cmp rax, 'O'
+    je verif_izquierda
+verif_salto3:
+    call pos_zorro
+    inc rcx
+    call busq_tablero
+    cmp rax, 'O'
+    je verif_derecha
+verif_salto4:
+    call pos_zorro
+    inc rbx
+    call busq_tablero
+    cmp rax, 'O'
+    je verif_abajo
 
-;     cmp     byte[contador_apariciones],4
-;     je      incrementar_rbx_en_1 ;salta para no contar el zorro
+    jmp ganaron_ocas
 
-;     cmp     byte[contador_apariciones],5  ;va a la final de abajo
-;     je      incrementar_rbx_en_7
+verif_arriba:
+    call pos_zorro
+    dec rbx
+    dec rbx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
+    jmp verif_salto2
+verif_izquierda:
+    call pos_zorro
+    dec rcx
+    dec rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
+    jmp verif_salto3
+verif_derecha:
+    call pos_zorro
+    inc rcx
+    inc rcx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
+    jmp verif_salto4
+verif_abajo:
+    call pos_zorro
+    inc rbx
+    inc rbx
+    call busq_tablero
+    cmp rax, ' '
+    je movimiento_posible
+    jmp ganaron_ocas
 
-;     cmp     byte[contador_apariciones],8
-;     je      comparacion_externa  ;termino
+gano_zorro:
+    mov rax, 1
+    ret
 
-;     call    bucle_cuadrado  ;no termino de revisar el cuadrado
+movimiento_posible:
+    mov rax, 0
+    ret
 
-; incrementar_rbx_en_7:
-;     add     rbx,7
-;     call    bucle_cuadrado
-
-; incrementar_rbx_en_1:
-;     inc     rbx
-;     call    bucle_cuadrado
-
-
-;  comparacion_externa:
-;     sub     rsp, 8
-;     call pos_zorro       ; rcx(col), rbx(fil)
-;     add     rsp,8
-
-;     dec rbx
-;     imul rbx, rbx, 9
-;     dec rcx
-;     add rbx, rcx
-
-;     mov [zorro], rbx   ;gurdo pocion
-    
-;     sub rbx,18
-    
-;     ifDosParametros byte[rbx], 0
-
-; bucle_externo:
-;     mov     r8,[r15 + rbx]
-;     cmp     r8,'O'
-;     je      aumenta_externo
-;     cmp     r8,'-'
-;     je      aumenta_externo
-;     ;si no hay pared y oca a donde va 
-
-; aumenta_externo:
-;     cmp     rdx,[zorro - 18]    ;arriba
-;     je      incrementar_rbx_en_16
-;     cmp     rdx,[zorro - 2]     ;izquierda
-;     je      incrementar_rbx_en_4
-;     cmp     rdx,[zorro + 2]     ;derecha
-;     je      incrementar_rbx_en_16
-;     cmp     rdx,[zorro + 18]    ;abajo
-;     je      gano_Oca    ;exito gano oca
-
-; incrementar_rbx_en_16:
-;     add     rdx,16
-;     call    bucle_externo
-
-; incrementar_rbx_en_4:
-;     add     rdx,4
-;     call    bucle_externo
-
+ganaron_ocas:
+    mov rax, -1
+    ret

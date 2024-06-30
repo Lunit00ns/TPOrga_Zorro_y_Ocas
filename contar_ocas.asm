@@ -1,6 +1,7 @@
 global contar_ocas
 
 section .data
+
 section .text
 
 ; Registros que utiliza:

@@ -33,10 +33,6 @@ busq_filcol:
     cmp rcx, 9
     jg invalido
 
-    ; Guardo los valores de fila y columna para no modificarlos al devolver un valor
-    mov [fila], rbx
-    mov [columna], rcx
-
     ; Cargo el tablero y realizo el desplazamiento
     lea rax, [r15] ; Cargo el tablero
     dec rbx
@@ -87,6 +83,4 @@ zorro:
     jmp devolver_valores
 
 devolver_valores:
-    mov rbx, fila
-    mov rcx, columna
     ret

@@ -15,14 +15,14 @@ extern gets, printf, sscanf
 %endmacro
 
 section .data       
-    msjIngOca           db  "¿Qué oca desea mover? ",0xA
-                        db  "Ingrese fila (1 a 7) y columna (1 a 7), separados por un espacio, de la oca a mover: ",0
-    msjIngFilCol        db	"¿A dónde desea mover la oca ? ",0
-                        db  "Ingrese fila (1 a 7) y columna (1 a 7) separados por un espacio: ",0
+    msjIngOca           db  "¿Qué oca desea mover? ",10
+                        db  "~ Ingrese fila (2 a 8) y columna (2 a 8), separados por un espacio, de la oca a mover: ",0
+    msjIngFilCol        db	"¿A dónde desea mover la oca? ",10,0
+                        db  "~ Ingrese fila (2 a 8) y columna (2 a 8) separados por un espacio: ",0
     formatInputFilCol	db	"%hi %hi",0
-    msjErrorInput       db  "La casilla ingresada es inválida. Intente nuevamente.",0
-    msjInputOK          db  "Casilla ingresada correctamente!",0xA,0
-    salir               db 'N'
+    msjErrorInput       db  "La casilla ingresada es inválida ✖️ Intente nuevamente.",0
+    msjInputOK          db  "Casilla ingresada correctamente ✔️",10,0
+    salir               db  'N'
 
 section .bss
 	filaOca             resw    1
@@ -52,7 +52,7 @@ oca_a_mover:
     add     rsp,8
     cmp     byte[inputValido],'S'
     je     entrada_oca
-    cmp     byte[salir],'S'
+    cmp     byte[inputFilCol],'S'
     je      fin
     
     mov     rdi,msjErrorInput
@@ -72,7 +72,7 @@ entrada_oca:
 
     cmp     byte[inputValido],'S'
     je      continuar
-    cmp     byte[salir],'S'
+    cmp     byte[inputFilColAMover],'S'
     je      fin
 
     mov     rdi,msjErrorInput
@@ -91,11 +91,12 @@ continuar:
     mov     byte[r15 + r9],"O"
     
 fin:
-    mov     rdi,[salir]    
+    mov     dil,[salir]    
     ret
 
 finPartida:
     mov     byte[salir],'S'
+    mov     rdi,[salir]
     ret
 
 validarFyC:
@@ -114,14 +115,14 @@ validarFyC:
     cmp     rax,2
     jl      invalido
 
-    cmp     word[fila],1
+    cmp     word[fila],2
     jl      invalido
-    cmp     word[fila],7
+    cmp     word[fila],8
     jg      invalido
 
-    cmp     word[columna],1
+    cmp     word[columna],2
     jl      invalido
-    cmp     word[columna],7
+    cmp     word[columna],8
     jg      invalido
 
 validarPosicion:

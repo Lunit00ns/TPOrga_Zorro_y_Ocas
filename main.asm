@@ -5,14 +5,30 @@
 ; nasm posiciones.asm -f elf64
 ; nasm verificarGanadores.asm -f elf64
 ; nasm finalizacion.asm -felf64
+; nasm verificar_zorro.asm -f elf64
+; nasm busq_tablero.arm -f elf64
+; nasm contar_ocas.asm -f elf64
 ; nasm Turnos/turno_zorro.asm -f elf64
 ; nasm Turnos/turno_oca.asm -f elf64
-; gcc main.o configuracion.o imprimir_tablero.o posiciones.o verificarGanadores.o finalizacion.o Turnos/turno_zorro.o Turnos/turno_oca.o -no-pie -o programa
+; gcc main.o configuracion.o imprimir_tablero.o posiciones.o verificarGanadores.o finalizacion.o Turnos/turno_zorro.o Turnos/turno_oca.o contar_ocas.o busq_tablero.o -no-pie -o programa
 ; ./programa
+;% include "funciones.asm"
+
+; --------------------------------------------------------
+; nasm main.asm -f elf64
+; nasm configuracion.asm -f elf64
+; nasm verificarGanadores.asm -f elf64
+; nasm finalizacion.asm -f elf64
+; nasm funciones.asm -f elf64
+; nasm Turnos/turno_zorro.asm -f elf64
+; nasm Turnos/turno_oca.asm -f elf64
+; gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o -no-pie -o programa
+; ./programa
+
 global main, turno
 extern printf
 
-extern config_jugadores, imprimir_tablero, pos_zorro,vericar_ganadores, entrada_zorro, oca_a_mover, vericar_ganadores
+extern config_jugadores, imprimir_tablero, pos_zorro, verificar_ganadores, entrada_zorro, oca_a_mover, gana_zorro, gana_oca,abandono
 
 %macro imprimir 0
     xor rax,rax
@@ -31,10 +47,9 @@ section .data
     desplazamiento      db  0
     turnoActual         db 'Z'
     msjSalir            db 'Cuando sea tu turno seleccione S para salir del juego'; esto luego lo ponemos lindo
+
     
 section .bss
-    jugadorZorro        resb 256
-    jugadorOca          resb 256
 
 section .text
 main:
@@ -43,9 +58,6 @@ main:
 
     sub         rsp, 8
     call        config_jugadores
-
-    mov         [jugadorZorro], rsi  
-    mov         [jugadorOca], rdi
 
     mov         rdi,msjSalir
     call        imprimir_tablero
@@ -63,53 +75,48 @@ juego_zorro: ; --> bucle principal del juego
     sub         rsp, 8
     call        entrada_zorro
     add         rsp, 8
-    cmp         rdi,'S';habria que ver si funciona
+    cmp         dil,'S';habria que ver si funciona
     je          finJuego        
     call        imprimir_tablero
+    
     mov         byte[turnoActual],'O'
     sub         rsp, 8
-    call        vericar_ganadores
+    call        verificar_ganadores
     add         rsp, 8
-    
+    cmp         rax,0
+    jg          ganador_zorro
+    jl          ganador_oca
 
 juego_oca:
     sub         rsp, 8
     call        oca_a_mover
     add         rsp, 8
-    cmp         rdi,'S';habria que ver si funciona
+    cmp         dil,'S';habria que ver si funciona
     je          finJuego        
     call        imprimir_tablero
     mov         byte[turnoActual],'Z'
     sub         rsp, 8
-    call        vericar_ganadores
+    call        verificar_ganadores
     add         rsp, 8
+    cmp         rax,0
+    jg          ganador_zorro
+    jl          ganador_oca
+    jmp         turno
 
-finJuego:    
+ganador_zorro:
+    sub         rsp,8
+    call        gana_zorro
+    add         rsp,8
     ret
-    ; chequeo si terminó el juego, ya sea porque el zorro no
-    ; tiene más movimientos, o porque el zorro comió 12 ocas
-;     sub         rsp, 8
-;     call        vericar_ganadores
-;     add         rsp, 8
 
-;     ; si no termino, guardo la partida y sigue el turno de la oca
-;     mov         [turnoActual], 'O'
+ganador_oca:
+    sub         rsp,8
+    call        gana_oca
+    add         rsp,8
+    ret
 
-; juego_oca:
-;     sub         rsp, 8
-;     call        turnoOca
-;     add         rsp, 8
-
-;     ; de vuelta chequeo si terminó el juego. Si no terminó,
-;     ; guardo la partida y arranco de vuelta.
-;     sub         rsp, 8
-;     call        vericar_ganadores
-;     add         rsp, 8
-
-;     mov         [turnoActual], 'Z'
-
-;     jmp         juego_zorro
-
-
-    
-    
+finJuego:
+    sub     rsp,8
+    call    abandono
+    add     rsp,8
+    ret

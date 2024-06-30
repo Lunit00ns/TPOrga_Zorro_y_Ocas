@@ -23,7 +23,7 @@ Implementación del juego _El Zorro y las Ocas_ en assembler Intel 80x86. El pro
 
 **Requerimento 1**
 - [ ] Permitir interrumpir la partida en cualquier momento del juego. (Salir del juego)
-- [ ] Identificar automáticamente cuando el juego llegó a su fin indicado el motivo. (por haber comido el zorro 12 ocas o por quedar el zorro “acorralado” sin poder moverse)
+- [x] Identificar automáticamente cuando el juego llegó a su fin indicado el motivo. (por haber comido el zorro 12 ocas o por quedar el zorro “acorralado” sin poder moverse)
 
 **Requerimento 2**
 - [ ] Permitir guardar la partida y poder recuperarla en otro momento en el mismo estado.

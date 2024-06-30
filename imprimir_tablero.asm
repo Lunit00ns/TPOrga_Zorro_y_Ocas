@@ -1,23 +1,23 @@
 global imprimir_tablero 
 
 section .data
-    fila    db " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", 10
-    largo_fila equ $ - fila
-    pared   dw '🟫'
-    fondo   dw '⬛'    
+    numeros db " 0", " 1", " 2", " 3", " 4", " 5", " 6", " 7", " 8", " 9", 10
+    largo_numeros equ $ - numeros
+    pared dw '🟫'
+    fondo dw '⬛'    
     espaciado db 10
 
 section .text
 
 imprimir_tablero:
-    lea rbx, [fila + 2] ; Aux de filas
+    lea rbx, [numeros + 2] ; Numeros
     mov r9, 81          ; Cantidad de elementos
     lea r8, [r15]       ; Cargo el tablero
     
     mov rax, 1
     mov rdi, 1
-    mov rsi, fila
-    mov rdx, largo_fila
+    mov rsi, numeros
+    mov rdx, largo_numeros
     syscall
 
 agregar_num:
@@ -33,7 +33,7 @@ loop_start:
     cmp r9, 0
     je terminar
 
-    ; ---- Condiciones de Emojis ----
+    ; Condiciones de Emojis
     cmp byte[r8], '-'
     je em_pared
     cmp byte[r8], ' '
@@ -49,7 +49,7 @@ loop_end:
     dec r9 ; Decremento el largo
     inc r8 ; Avanzo al siguiente elemento del tablero
     
-    ; ---- Para agregar los \n al final de cada línea ----
+    ; Para agregar los \n al final de cada línea
     cmp r9, 9
     je prnt_espaciado
     cmp r9, 18
@@ -73,7 +73,7 @@ loop_end:
     jg loop_start   ; En caso de no haber iterado todos los elementos
     jmp terminar    ; En caso de que sí
 
-; --------- Emojis -----------
+; Emojis
 em_pared:
     mov rax, 1
     mov rdi, 1
@@ -102,10 +102,9 @@ em_zorro:
     mov rdx, 4
     syscall
     jmp loop_end
-; ----------------------------
 
 prnt_espaciado:
-    ; ---- Agrego un \n al final ----
+    ; Agrego un \n al final
     mov rax, 1
     mov rdi, 1
     mov rsi, espaciado
@@ -115,7 +114,7 @@ prnt_espaciado:
     jmp agregar_num
 
 terminar:
-    ; ---- Agrego un \n al final ----
+    ; Agrego un \n al final
     mov rax, 1
     mov rdi, 1
     mov rsi, espaciado
