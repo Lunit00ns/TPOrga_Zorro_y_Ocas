@@ -1,8 +1,9 @@
+global direccion
 global config_jugadores
 extern printf, sscanf, puts
 extern gets
 
-global direccion
+
 
 %macro imprimir 0
     xor rax, rax
@@ -101,16 +102,6 @@ section .data
                         db  '-',' ',' ','O','X','O',' ',' ','-',
                         db  '-','-','-',' ','O',' ','-','-','-',
                         db  '-','-','-',' ',' ',' ','-','-','-',
-                        db  '-','-','-','-','-','-','-','-','-'
-
-    tableroPrueba2      db  '-','-','-','-','-','-','-','-','-',
-                        db  '-','-','-','O','O','O','-','-','-',
-                        db  '-','-','-','O','O','O','-','-','-',
-                        db  '-','O','O','O','O','O','O','O','-',
-                        db  '-','O','O','O','O',' ','O','O','-',
-                        db  '-','O','O','O','X','O','O','O','-',
-                        db  '-','-','-','O','O','O','-','-','-',
-                        db  '-','-','-','O','O','O','-','-','-',
                         db  '-','-','-','-','-','-','-','-','-'
 
     formatoOpcion       db  '%hi',0
@@ -279,7 +270,6 @@ orientacion_izquierda:
 config_predeterminada:
     mov         r15, tableroPrueba
     mov         rdi, msjPersoDefault
-    mov         byte[direccion], -9
     imprimir
 
 terminar_config:

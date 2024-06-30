@@ -28,7 +28,7 @@ section .data
     modoEscritura       db 'w',0  
     modoLectura         db 'r',0
 
-    msjError            db 'Error en apertura de archivo',0
+    msjError            db 'Error en apertura de archivo.',0
 
 section .bss
     fileHandle          resq 1 
@@ -45,7 +45,7 @@ guardar:
     cmp     rax,0
     jg      archivoAbierto 
 
-    mov     rdi,msjErrOpen
+    mov     rdi,msjError
     sub     rsp,8
     call    puts
     add     rsp,8
@@ -53,8 +53,8 @@ guardar:
 
 archivoAbierto:
     mov     [fileHandle], rax
-    ; Guardo la partida
-    mov     rdi, r15
+
+    mov     rdi, r15 ; tablero
     escribir 81
 
     mov     rdi, r13 ; emoji zorro

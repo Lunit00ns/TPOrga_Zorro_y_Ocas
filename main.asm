@@ -119,18 +119,16 @@ turno:
     cmp         al,'O'
     je          juego_oca
 
-juego_zorro: ; --> bucle principal del juego
+juego_zorro: 
     sub         rsp, 8
     call        entrada_zorro
     add         rsp, 8
-    cmp         dil,'S';habria que ver si funciona
+    cmp         dil,'S'
     je          finJuego        
     call        imprimir_tablero
-    sub         rsp, 8
-    call        imprimir_estadisticas
-    add         rsp, 8
     
     mov         byte[turnoActual],'O'
+
     sub         rsp, 8
     call        verificar_ganadores
     add         rsp, 8
@@ -142,7 +140,7 @@ juego_oca:
     sub         rsp, 8
     call        oca_a_mover
     add         rsp, 8
-    cmp         dil,'S';habria que ver si funciona
+    cmp         dil,'S'
     je          finJuego        
     call        imprimir_tablero
     mov         byte[turnoActual],'Z'
@@ -158,13 +156,19 @@ ganador_zorro:
     sub         rsp,8
     call        gana_zorro
     add         rsp,8
-    ret
+
+    mov         rax,60
+    mov         rdi, 1
+    syscall
 
 ganador_oca:
     sub         rsp,8
     call        gana_oca
     add         rsp,8
-    ret
+
+    mov         rax,60
+    mov         rdi, 1
+    syscall
 
 finJuego:
     sub         rsp,8
