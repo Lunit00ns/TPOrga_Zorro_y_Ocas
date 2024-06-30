@@ -4,6 +4,15 @@ section .data
 
 section .text
 
+; Registros que utiliza:
+; rax, rbx, rcx
+
+; Parámetros:
+; Ninguno
+
+; La función devuelve la posición del zorro en fila/columna (rbx y rcx), o
+; -1 en ambos registros si es que no encuentra al zorro (cosa que no puede pasar).
+
 pos_zorro:
     mov rcx, 1
     mov rbx, 1
