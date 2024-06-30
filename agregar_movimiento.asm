@@ -4,8 +4,15 @@ section .data
 
 section .text
 
+; Registros que utiliza:
+; rbx, rcx, r8, r9
+
+; Parámetros:
+; r8 y r9: fila y columna de la posición a moverse.
+
 ; La función recibe la fila y columna de la posición a avanzar (r8 y r9),
-; y calcula (en rdx) dónde agregar un movimiento en el array "movimientos" (en r12).
+; busca la posición del zorro para compararar, y calcula (en rdx)
+; dónde agregar un movimiento en el array "movimientos" (en r12).
 
 
 ; r8 = fila posicion a avanzar
