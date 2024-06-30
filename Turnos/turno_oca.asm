@@ -70,7 +70,7 @@ entrada_oca:
     call    validarFyCADondeMover
     add     rsp,8
 
-    cmp     byte[inputValido],'S'
+    cmp     byte[inputValido2],'S'
     je      continuar
     cmp     byte[inputFilColAMover],'S'
     je      fin

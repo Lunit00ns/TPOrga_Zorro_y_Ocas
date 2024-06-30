@@ -30,13 +30,15 @@ section .data
 
     msjError            db 'Error en apertura de archivo.',0
 
+    saltoLinea          db 10,0
+
 section .bss
     fileHandle          resq 1 
 
 section .text
 guardar:
     mov     rdi,nombreArchivo
-    mov     rsi,modo
+    mov     rsi,modoEscritura
 
     sub     rsp,8
     call    fopen
@@ -88,8 +90,6 @@ continuar:
     mov     rcx, [fileHandle]
     call    fwrite
     imprimirSaltoLinea
-
-    ret ; --> no se si debería estar acá
 
 fin:
     ret

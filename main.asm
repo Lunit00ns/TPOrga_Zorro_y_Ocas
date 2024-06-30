@@ -4,15 +4,18 @@
 ; nasm verificarGanadores.asm -f elf64
 ; nasm finalizacion.asm -f elf64
 ; nasm funciones.asm -f elf64
+; nasm archivos.asm -f elf64
 ; nasm Turnos/turno_zorro.asm -f elf64
 ; nasm Turnos/turno_oca.asm -f elf64
-; gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o -no-pie -o programa
+; gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o pruebas.o -no-pie -o programa
 ; ./programa
 ; --------------------------------------------------------
 global main, turno
 extern printf,gets ,sscanf
 
-extern config_jugadores, imprimir_tablero, pos_zorro, verificar_ganadores, entrada_zorro, oca_a_mover, gana_zorro, gana_oca,abandono, imprimir_estadisticas
+global turnoActual
+
+extern config_jugadores, imprimir_tablero, pos_zorro, verificar_ganadores, entrada_zorro, oca_a_mover, gana_zorro, gana_oca,abandono, imprimir_estadisticas, guardar2
 
 %macro imprimir 0
     xor rax,rax
@@ -49,7 +52,6 @@ section .data
 
 section .bss
     opcionInicio        resb 1  
-    opcionValida        resb 1
 
 section .text
 main:
@@ -61,29 +63,15 @@ inicio:
     imprimir
     mov		rdi,opcionInicio
 	leerInput
-
-    sub     rsp,8
-    call    validar_opcion
-    add     rsp,8
-
-    cmp         byte [opcionValida], 'S'
-    je          opcion_seleccionada
-
-    mov         rdi, msjError
-    imprimir
-
-    jmp         inicio
     
 validar_opcion:
-    mov         byte[opcionValida],'N'
-
     mov         rdi,opcionInicio
     mov         rsi,formatoOpcion
     mov         rdx,opcionInicio
     
     sub		    rsp,8
 	call	    sscanf
-	add		    rsp,8    
+	add		    rsp,8
 
     cmp         rax,1
     jne         invalido
@@ -180,4 +168,7 @@ finJuego:
     syscall
 
 invalido:
-    ret
+    mov         rdi, msjError
+    imprimir
+
+    jmp         inicio
