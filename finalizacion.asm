@@ -1,5 +1,6 @@
-global  gano_Zorro
-global  gano_oca
+global  gano_Oca, gano_Zorro
+
+extern printf
 
 %macro imprimir 0
     xor rax,rax
@@ -22,13 +23,11 @@ section .text
 
 gano_Zorro:
     mov     rdi, msjGanadorZorro
-    imprimir
-    call    estadisticas
+    call    imprimir_estadisticas
 
 gano_Oca:
     mov     rdi, msjGanadorOcas
-    imprimir
-    call    estadisticas
+    call    imprimir_estadisticas
     
 imprimir_estadisticas:
     mov rdi, cantMovRectos

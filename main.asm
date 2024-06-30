@@ -3,13 +3,16 @@
 ; nasm configuracion.asm -f elf64
 ; nasm imprimir_tablero.asm -f elf64
 ; nasm posiciones.asm -f elf64
+; nasm verificarGanadores.asm -f elf64
+; nasm finalizacion.asm -felf64
 ; nasm Turnos/turno_zorro.asm -f elf64
-; gcc main.o configuracion.o imprimir_tablero.o posiciones.o Turnos/turno_zorro.o -no-pie -o programa
+; nasm Turnos/turno_oca.asm -f elf64
+; gcc main.o configuracion.o imprimir_tablero.o posiciones.o verificarGanadores.o finalizacion.o Turnos/turno_zorro.o Turnos/turno_oca.o -no-pie -o programa
 ; ./programa
-global main
+global main, turno
 extern printf
 
-extern config_jugadores, imprimir_tablero, pos_zorro,vericar_ganadores, entrada_zorro,oca_a_mover
+extern config_jugadores, imprimir_tablero, pos_zorro,vericar_ganadores, entrada_zorro, oca_a_mover, vericar_ganadores
 
 %macro imprimir 0
     xor rax,rax
@@ -48,6 +51,13 @@ main:
     call        imprimir_tablero
     add         rsp, 8
 
+turno:
+    mov al, [turnoActual]
+    cmp     al,'Z' 
+    je      juego_zorro
+    cmp     al,'O'
+    je    juego_oca
+
 
 juego_zorro: ; --> bucle principal del juego
     sub         rsp, 8
@@ -56,6 +66,24 @@ juego_zorro: ; --> bucle principal del juego
     cmp         rdi,'S';habria que ver si funciona
     je          finJuego        
     call        imprimir_tablero
+    mov         byte[turnoActual],'O'
+    sub         rsp, 8
+    call        vericar_ganadores
+    add         rsp, 8
+    
+
+juego_oca:
+    sub         rsp, 8
+    call        oca_a_mover
+    add         rsp, 8
+    cmp         rdi,'S';habria que ver si funciona
+    je          finJuego        
+    call        imprimir_tablero
+    mov         byte[turnoActual],'Z'
+    sub         rsp, 8
+    call        vericar_ganadores
+    add         rsp, 8
+
 finJuego:    
     ret
     ; chequeo si terminó el juego, ya sea porque el zorro no
