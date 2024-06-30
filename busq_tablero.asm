@@ -10,7 +10,7 @@ section .text
 busq_tablero:
     ; En caso de querer buscar por índice, el rax debe estar vacío
     cmp rax, 0
-    je busqueda_indice
+    je busq_indice
 
 busq_filcol:
     ; Reviso si la posición está dentro del tablero
