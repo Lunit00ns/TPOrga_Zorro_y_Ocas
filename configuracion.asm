@@ -112,7 +112,7 @@ section .bss
 section .text
 
 config_jugadores:
-    mov         r12,movimientos
+    lea         r12,[movimientos]
 
     mov		    rdi,msjNombreJugador1
     imprimir
