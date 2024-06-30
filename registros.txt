@@ -3,9 +3,9 @@ r8      - Aux
 r9      - Aux
 r10     - Aux
 r11     - Dirección inválida Oca (-1, -9, 1, 9)
-r12     - EstadisticasZorro (arreglo de 8 elementos) --> Posiciones en orden según las agujas del reloj
-r13     - EmojiOca
-r14     - EmojiZorro 
+r12     - EstadisticasZorro (arreglo de 8 elementos) --> Posiciones según santi
+r13     - EmojiZorro
+r14     - EmojiOca 
 r15     - Tablero
 
 - Auxiliares -

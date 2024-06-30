@@ -1,6 +1,7 @@
 global oca_a_mover
 
 extern gets, printf, sscanf
+extern direccion
 
 %macro imprimir 0
     sub rsp,8 
@@ -16,11 +17,10 @@ extern gets, printf, sscanf
 
 section .data       
     msjIngOca           db  "¿Qué oca desea mover? ",10
-                        db  "~ Ingrese fila (2 a 8) y columna (2 a 8), separados por un espacio, de la oca a mover: ",0
-    msjIngFilCol        db	"¿A dónde desea mover la oca? ",10,0
-                        db  "~ Ingrese fila (2 a 8) y columna (2 a 8) separados por un espacio: ",0
+                        db  "~ Ingrese fila y columna separados por un espacio de la oca a mover, o 'S' para salir: ",0
+    msjIngFilCol        db	"¿A dónde desea mover a la oca? ",0
     formatInputFilCol	db	"%hi %hi",0
-    msjErrorInput       db  "La casilla ingresada es inválida ✖️ Intente nuevamente.",0
+    msjErrorInput       db  "La casilla ingresada es inválida ✖️  Intente nuevamente.",0
     msjInputOK          db  "Casilla ingresada correctamente ✔️",10,0
     salir               db  'N'
 
@@ -223,16 +223,13 @@ verificarMovimientoRecto:
 
 verificarSalto:
     
+    mov     cl,[desplaz]
+    mov     al,[desplazOca]
+    sub     cl,al
+    cmp     byte[direccion],cl
+    je      invalido
     
-    ;primero verifico si es un movimiento de una casilla
-    cmp     byte[deltax],-1
-    je      movimientoValido
-    cmp     byte[deltay], -1
-    je      movimientoValido
-    cmp     byte[deltay], 1
-    je      movimientoValido
-    
-    jmp     invalido
+    jmp     movimientoValido
     
 
 movimientoValido:

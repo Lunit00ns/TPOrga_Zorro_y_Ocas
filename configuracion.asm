@@ -1,8 +1,8 @@
-;%include "funciones.asm"
-
 global config_jugadores
 extern printf, sscanf, puts
 extern gets
+
+global direccion
 
 %macro imprimir 0
     xor rax, rax
@@ -94,13 +94,13 @@ section .data
                         db  '-','-','-','-','-','-','-','-','-'
 
     tableroPrueba       db  '-','-','-','-','-','-','-','-','-',
-                        db  '-','-','-',' ',' ','O','-','-','-',
-                        db  '-','-','-','O','O','O','-','-','-',
-                        db  '-',' ','O',' ',' ',' ','O','O','-',
-                        db  '-',' ','O','O','O','O',' ','O','-',
-                        db  '-','O',' ',' ',' ',' ',' ','O','-',
-                        db  '-',' ','O','O','O','O','-','-','-',
-                        db  '-','-','-',' ','X',' ','-','-','-',
+                        db  '-','-','-',' ',' ',' ','-','-','-',
+                        db  '-','-','-',' ','O',' ','-','-','-',
+                        db  '-',' ','O',' ',' ',' ','O',' ','-',
+                        db  '-',' ',' ',' ','O',' ',' ',' ','-',
+                        db  '-',' ',' ','O','X','O',' ',' ','-',
+                        db  '-','-','-',' ','O',' ','-','-','-',
+                        db  '-','-','-',' ',' ',' ','-','-','-',
                         db  '-','-','-','-','-','-','-','-','-'
 
     tableroPrueba2      db  '-','-','-','-','-','-','-','-','-',
@@ -115,6 +115,7 @@ section .data
 
     formatoOpcion       db  '%hi',0
     movimientos         db  0,0,0,0,0,0,0,0
+    direccion           db  -9
 
 section .bss
     OpcionPerso         resb 1
@@ -203,8 +204,6 @@ emojis_seleccionados:
     mov         ecx, 4
     rep movsb
 
-
-
 config_tablero:
     mov         rdi, msjTablero
     imprimir
@@ -256,31 +255,31 @@ tablero_seleccionado:
 orientacion_arriba:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroArriba
-    mov         r11, -9
+    mov         byte[direccion], -9
     ret
 
 orientacion_derecha:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroDerecha
-    mov         r11, 1
+    mov         byte[direccion], 1
     ret
 
 orientacion_abajo:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroAbajo
-    mov         r11, 9
+    mov         byte[direccion], 9
     ret
 
 orientacion_izquierda:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroIzquierda
-    mov         r11, -1
+    mov         byte[direccion], -1
     ret
 
 config_predeterminada:
     mov         r15, tableroPrueba
-    mov         r11, -9
     mov         rdi, msjPersoDefault
+    mov         byte[direccion], -9
     imprimir
 
 terminar_config:

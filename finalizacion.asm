@@ -1,6 +1,4 @@
-;%include "funciones.asm"
-
-global gana_oca, gana_zorro,abandono
+global gana_oca, gana_zorro,abandono, imprimir_estadisticas
 
 extern printf
 
@@ -42,15 +40,15 @@ section .text
 
 gana_zorro:
     mov     rdi, msjGanadorZorro
-    mov     rsi, [r13]
+    mov     rsi, r13
     imprimir
-    call    imprimir_estadisticas
+    jmp     imprimir_estadisticas
 
 gana_oca:
     mov     rdi, msjGanadorOcas
-    mov     rsi, [r14]
+    mov     rsi, r14
     imprimir
-    call    imprimir_estadisticas
+    jmp    imprimir_estadisticas
 
 abandono:
     mov     rdi,msAbandono
@@ -59,17 +57,17 @@ abandono:
 
 imprimir_estadisticas:
     mov rdi, cantMovRectos
-    movzx rsi, byte [r12 + 0]   ; Arriba
-    movzx rdx, byte [r12 + 2]   ; Derecha
-    movzx rcx, byte [r12 + 4]   ; Abajo
-    movzx r8, byte [r12 + 6]    ; Izquierda
+    movzx rsi, byte [r12 + 1]   ; Arriba
+    movzx rdx, byte [r12 + 3]   ; Derecha
+    movzx rcx, byte [r12 + 6]   ; Abajo
+    movzx r8, byte [r12 + 4]    ; Izquierda
     imprimir
 
     mov rdi, cantMovDiagonales
-    movzx rsi, byte [r12 + 1]   ; Arriba-Derecha
-    movzx rdx, byte [r12 + 3]   ; Abajo-Derecha
+    movzx rsi, byte [r12 + 2]   ; Arriba-Derecha
+    movzx rdx, byte [r12 + 7]   ; Abajo-Derecha
     movzx rcx, byte [r12 + 5]   ; Abajo-Izquierda
-    movzx r8, byte [r12 + 7]    ; Arriba-Izquierda
+    movzx r8, byte [r12 + 0]    ; Arriba-Izquierda
     imprimir
 
     ret

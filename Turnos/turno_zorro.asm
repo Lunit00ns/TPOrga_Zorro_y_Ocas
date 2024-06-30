@@ -1,6 +1,6 @@
 global entrada_zorro
 
-extern busqueda_tablero, imprimir_tablero
+extern busqueda_tablero, imprimir_tablero, agregar_movimiento
 extern gets, printf, sscanf
 extern pos_zorro
 
@@ -18,14 +18,19 @@ extern pos_zorro
 
 section .data             
     msjIngFilCol        db "¿Dónde desea mover al zorro?",10
-                        db "~ Ingrese fila (2 a 8) y columna (2 a 8) separados por un espacio: ",0
-    formatInputFilCol   db "%hi %hi",0
+                        db "~ Ingrese fila y columna separados por un espacio, o 'S' para salir: ",0
     msjErrorInput       db "La casilla ingresada es inválida ✖️ Intente nuevamente.",10,0
     msjInputOK          db "Casilla ingresada correctamente ✔️",10,0
+    msjTurnoExtra       db '----- Comiste una oca %s Tenes un movimiento extra -----',10,0
+
+    formatInputFilCol   db "%hi %hi",0
     seComioOca          db 0
     posOca1             db 0
     salir               db 'N'
-    ;turno               db "1"
+    turno               db 1
+
+    b_fila              db 0
+    b_columna           db 0
 
 section .bss
     inputFilCol         resb 50     
@@ -39,7 +44,7 @@ section .bss
     
 section .text
 entrada_zorro:
-    mov     r10,"1"
+    mov     byte[turno],1
 pedirMov:
     mov     rdi,msjIngFilCol
     imprimir
@@ -62,7 +67,7 @@ pedirMov:
     jmp     pedirMov
 
 continuar:
-
+    call        obtenerDireccion
     mov         rdi,msjInputOK
     imprimir    
     
@@ -87,24 +92,28 @@ cambiarposiciones:
     ;tiene turno extra?
     cmp         byte[seComioOca],1
     je          cambiarposicionesOca
-    cmp         byte[seComioOca],2
-    je          cambiarposicionesOca
     
     
 fin:    
     mov     rbx,[seComioOca]
     mov     dil,byte[inputFilCol]
-    mov     r10,"1"
     mov     byte[seComioOca],0
+    mov     byte[turno],1
     ret
 
 cambiarposicionesOca:
+    mov     byte[seComioOca],0
     mov     r9w,[posOca1]
     mov     byte[r15 + r9]," "
-    cmp     byte[r10],"2"
+    cmp     byte[turno],2
     je      invalido
-    mov     r10,"2"
+    mov     byte[turno],2
     call    imprimir_tablero
+    
+    mov     rdi, msjTurnoExtra
+    mov     rsi, r14
+    imprimir
+
     jmp       pedirMov
     ret
 
@@ -213,7 +222,7 @@ verificarSalto:
 
 ;verifico si es posible que el zorro salte, para eso debe haber una oca en las posiciones correspondientes
 ;para verificar si hay una oca, calculo la posicion intermedia entre el salto y la posicion del zorro
-saltoSimpleAbajo:
+saltoSimpleAbajo: 
 
     mov     bx,[fila]
     sub     bx,2
@@ -329,10 +338,10 @@ invalido:
 movimientoValido:
     mov     byte[inputValido],'S'
     ret
-obtenerDIreccion:    
-    sub         rsp, 8
-    call        pos_zorro   ; rcx(col), rbx(fil)5 6
-    add         rsp, 8
+obtenerDireccion:
+    sub rsp, 8
+    call pos_zorro
+    add rsp, 8
 
     sub     bl,[fila]
 
@@ -341,43 +350,60 @@ obtenerDIreccion:
     cmp     bl,0;si la diferencia de fila es 0 => se movio a uno de los costados
     je      izqoder
 
-    cmp     cl,0;si la diferencia de columna es 0 => se movio a arriba o abajo
+    cmp     cl,0;si la diferencia de columna es 0 => se m3ovio a arriba o abajo
     je      arribaoabajo
 
     ;si ninugno es cero => es en diagonal
     cmp     bl,1;si la diferencia de fila es 1 => se movio en diagonal para arriba
     je      diagonalArribaIzqoDer
 
-    jmp     diagonaAbajolIzqoDer; el unico caso que queda es diagonal para abajo
+    jmp     diagonalAbajoIzqoDer; el unico caso que queda es diagonal para abajo
 
-diagonaAbajolIzqoDer:
+diagonalAbajoIzqoDer:
     cmp     cl,1
-    je      seMovioparaDiagonaAbajolDer
-    jmp     seMOvioparaDiagonaAbajolIzq
+    je     seMOvioparaDiagonalAbajoIzq
+    jmp      seMovioparaDiagonalAbajoDer
+    
 
 diagonalArribaIzqoDer:
     cmp     cl,1
-    je      seMovioparaDiagonaArribalIzq
-    jmp     seMovioparaDiagonaArribalDer
+    je      seMovioparaDiagonalArribaIzq
+    jmp     seMovioparaDiagonalArribaDer
 arribaoabajo:  
     cmp     bl,1
-    je      seMovioparaAbrriba
-    jmp     seMovioparaAbajo
+    je     seMovioparaAbajo
+    jmp      seMovioparaArriba
+    
 izqoder:
     cmp     cl,1
-    je      seMovioparaIzq
-    jmp     seMovioparaDer
+    je    seMovioparaDer
+    jmp      seMovioparaIzq
     
-seMovioparaDiagonaAbajolDer:
-   
-seMOvioparaDiagonaAbajolIzq:  
-seMovioparaDiagonaArribalDer:   
-seMovioparaDiagonaArribalIzq:
-seMovioparaAbajo:   
-seMovioparaAbrriba:
-seMovioparaDer:
+    
+    
+seMovioparaDiagonalArribaIzq:
+    add byte[r12 + 0], 1
+    ret
+seMovioparaArriba:
+    add byte[r12 + 1], 1
+    ret
+seMovioparaDiagonalArribaDer:
+    add byte[r12 + 2], 1
+    ret
 seMovioparaIzq:
-    
+    add byte[r12 + 3], 1
+    ret
+seMovioparaDer:
+    add byte[r12 + 4], 1
+    ret
+seMOvioparaDiagonalAbajoIzq:
+    add byte[r12 + 5], 1
+    ret
+seMovioparaAbajo:
+    add byte[r12 + 6], 1
+    ret
+seMovioparaDiagonalAbajoDer:
+    add byte[r12 + 7], 1
     ret
 
 ; Función que incrementa el contador en la posición indicada en el r8
