@@ -106,6 +106,7 @@ cambiarposicionesOca:
     mov     bl,[turno]
     add     bl,1
     mov     [turno],bl
+    call    imprimir_tablero
     jmp       pedirMov
     ret
 finPartida:
@@ -349,9 +350,9 @@ obtenerDIreccion:
 
     ;si ninugno es cero => es en diagonal
     cmp     bl,1;si la diferencia de fila es 1 => se movio en diagonal para arriba
-    je      diagonaArribalIzqoDer
+    je      diagonalArribaIzqoDer
 
-    jmp     diagonalArribaIzqoDer; el unico caso que queda es diagonal para abajo
+    jmp     diagonaAbajolIzqoDer; el unico caso que queda es diagonal para abajo
 
 diagonaAbajolIzqoDer:
     cmp     cl,1
