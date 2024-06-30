@@ -96,6 +96,7 @@ section .data
                         db  '-','-','-','-','-','-','-','-','-'
 
     formatoOpcion       db  '%hi',0
+    movimientos         db  0,0,0,0,0,0,0,0
 
 section .bss
     Jugador1            resb 256
@@ -107,12 +108,12 @@ section .bss
     OpcionTablero       resb 1
 
     OpcionValida        resb 1 
-
-    movimientos         resb 8
     
 section .text
 
 config_jugadores:
+    mov         r12,movimientos
+
     mov		    rdi,msjNombreJugador1
     imprimir
     leerInput Jugador1

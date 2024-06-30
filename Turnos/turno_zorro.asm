@@ -1,6 +1,6 @@
 global entrada_zorro
 
-extern busqueda_tablero
+extern busqueda_tablero, imprimir_tablero
 extern gets, printf, sscanf
 extern  pos_zorro
 
@@ -24,7 +24,8 @@ section .data
     msjInputOK          db "Casilla ingresada correctamente!",0xA,0
     seComioOca          db 0
     posOca1             db 0
-    formato             db "%hi",0
+    salir               db 'N'
+    turno               db 1
 
 
 section .bss
@@ -36,10 +37,10 @@ section .bss
     fila                resw 1
     columna             resw 1
     matriz              resq 1
+    
 
 section .text
 entrada_zorro:
-
 pedirMov:
     mov     rdi,msjIngFilCol
     imprimir
@@ -53,6 +54,8 @@ pedirMov:
 
     cmp     byte[inputValido],'S'
     je      continuar
+    cmp     byte[salir],'S'
+    je      fin
 
     mov     rdi,msjErrorInput
     imprimir
@@ -62,23 +65,17 @@ pedirMov:
 continuar:
 
     mov         rdi,msjInputOK
-    imprimir
+    imprimir    
     
     xor         rdi,rdi
-    ;tiene turno extra?
-    cmp         byte[seComioOca],1
-    je          cambiarposicionesOca
-
 cambiarposiciones:
     sub         rsp, 8
     call        pos_zorro
     add         rsp, 8
 
     ;no se si funciona
-    lea         r8, [r15]
-    add         r8,[desplaz]
-
-    mov         r8,"X"
+    mov     r9w,[desplaz]
+    mov     byte[r15 + r9],"X"
     
     dec         rbx
     imul        rbx,rbx,9
@@ -86,28 +83,39 @@ cambiarposiciones:
     dec         rcx
     add         rbx,rcx
 
-    lea         r8, [r15]
-    add         r8,rbx
-    mov         r8," "
+    mov     byte[r15 + rbx]," "
 
-
-terminarTurno:
+    ;tiene turno extra?
     cmp         byte[seComioOca],1
-    je          pedirMov
-    mov         rbx,[seComioOca]
+    je          cambiarposicionesOca
+    
+    mov         rdi,msjInputOK
+    imprimir  
+    
+fin:    
+    mov     rbx,[seComioOca]
+    mov     rdi,[salir]
     ret
 
 cambiarposicionesOca:
-    ;no se si funciona
-    lea         r8,[r15]
-    add         r8,[posOca1]
-
-    mov         r8,"O"
+    cmp     byte[turno],2
+    je      invalido
+    mov     r9w,[posOca1]
+    mov     byte[r15 + r9]," "
     
-    jmp         cambiarposiciones
+    mov     bl,[turno]
+    add     bl,1
+    mov     [turno],bl
+    jmp       pedirMov
+    ret
+finPartida:
+    mov     byte[salir],'S'
+    ret
 
 validarFyC:
     mov     byte[inputValido],'N'
+    cmp     byte[inputFilCol],'S'
+    je      finPartida
 
     mov     rdi,inputFilCol
     mov     rsi,formatInputFilCol
@@ -134,6 +142,7 @@ validarFyC:
 validarRango:
     ;primero calculo dez y veo si esta vacia
     ;luego verifico si es posible el movimiento segun las reglas
+    
     mov     bx,[fila]
     dec     bx
     imul    bx,bx,9
@@ -160,10 +169,9 @@ verificarMovimientoRecto:
     call        pos_zorro   ; rcx(col), rbx(fil)5 6
     add         rsp, 8
 
+    sub     bl,[fila]
 
-    sub     rbx,[fila]
-
-    sub     rcx,[columna]
+    sub     cl,[columna]
 
     cmp     bl,0
     je      verificarSalto
@@ -178,8 +186,7 @@ verificarMovimientoRecto:
     jmp     invalido
 
 verificarSalto:
-    mov         rdi,msjInputOK
-    imprimir
+    xor    rdi,rdi
     ;primero verifico si es un movimiento de una casilla
     cmp     bl, 1
     je      movimientoValido
@@ -193,60 +200,198 @@ verificarSalto:
     ;ahora verifico si es un salto de una celda (osea se mueve dos casillas para comer una oca)
     
     cmp     bl, 2
-    je      saltoSimple
+    je      saltoSimpleArriba
     cmp     bl, -2
-    je      saltoSimple
+    je      saltoSimpleAbajo
     cmp     cl, 2
-    je      saltoSimple
+    je      saltoSimpleIzq
     cmp     cl, -2
-    je      saltoSimple
+    je      saltoSimpleDerecha
     
     jmp     invalido
 
 ;verifico si es posible que el zorro salte, para eso debe haber una oca en las posiciones correspondientes
 ;para verificar si hay una oca, calculo la posicion intermedia entre el salto y la posicion del zorro
-saltoSimple:
+saltoSimpleAbajo:
     ;espero que funcione :)
     cmp     bl,cl
-    jne     invalido
-    
-    xor rbx,rbx
-    xor rcx,rcx
-    sub         rsp, 8
-    call        pos_zorro
-    add         rsp, 8
+    je     invalido
 
 
-    add     rbx,[fila]
-    xor     rdx,rdx
-    mov     ax,bx
-    mov     si,2
-    div     si
-    mov     bx,ax
-    
-    dec     bx
+    mov     bx,[fila]
+    sub     bx,2
     imul    bx,bx,9
     mov     [posOca1],bx
-    
-    add     rcx,[columna]
-    mov     ax,cx
-    div     si
-    dec     ax
 
-    add     [posOca1],ax
-    
-    lea r8, [r15]
-    add r8,[desplaz]
+    mov     bx,[columna]
+    sub     bx,1
+    add     [posOca1],bx
 
-    cmp     r8,"O"
+
+    mov     ebx,[posOca1]   
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+    cmp     al,'O'
+
     jne     invalido  
     add     byte[seComioOca],1
     jmp     movimientoValido
    
 
+saltoSimpleArriba:
+    ;espero que funcione :)
+    cmp     bl,cl
+    je     invalido
+
+
+    mov     bx,[fila]
+    imul    bx,bx,9
+    mov     [posOca1],bx
+
+    mov     bx,[columna]
+    sub     bx,1
+    add     [posOca1],bx
+
+
+    mov     ebx,[posOca1]   
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+    cmp     al,'O'
+
+    jne     invalido  
+    add     byte[seComioOca],1
+    jmp     movimientoValido
+
+saltoSimpleIzq:
+    ;espero que funcione :)
+    cmp     bl,cl
+    je     invalido
+
+
+    mov     bx,[fila]
+    dec     bx
+    imul    bx,bx,9
+    mov     [posOca1],bx
+
+    mov     bx,[columna]
+    add     [posOca1],bx
+
+
+    mov     ebx,[posOca1]   
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+    cmp     al,'O'
+
+    jne     invalido  
+    add     byte[seComioOca],1
+    jmp     movimientoValido
+
+saltoSimpleDerecha:
+    ;espero que funcione :)
+    cmp     bl,cl
+    je     invalido
+
+
+    mov     bx,[fila]
+    dec     bx
+    imul    bx,bx,9
+    mov     [posOca1],bx
+
+    mov     bx,[columna]
+    sub     bx,2
+    add     [posOca1],bx
+
+
+    mov     ebx,[posOca1]   
+    movzx   ecx,bl 
+    sub     eax,eax
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+    cmp     al,'O'
+
+    jne     invalido  
+    add     byte[seComioOca],1
+    jmp     movimientoValido
 invalido:
     ret
 
 movimientoValido:
     mov     byte[inputValido],'S'
     ret
+obtenerDIreccion:    
+    sub         rsp, 8
+    call        pos_zorro   ; rcx(col), rbx(fil)5 6
+    add         rsp, 8
+
+    sub     bl,[fila]
+
+    sub     cl,[columna]  
+    
+    cmp     bl,0;si la diferencia de fila es 0 => se movio a uno de los costados
+    je      izqoder
+
+    cmp     cl,0;si la diferencia de columna es 0 => se movio a arriba o abajo
+    je      arribaoabajo
+
+    ;si ninugno es cero => es en diagonal
+    cmp     bl,1;si la diferencia de fila es 1 => se movio en diagonal para arriba
+    je      diagonaArribalIzqoDer
+
+    jmp     diagonalArribaIzqoDer; el unico caso que queda es diagonal para abajo
+
+diagonaAbajolIzqoDer:
+    cmp     cl,1
+    je      seMovioparaDiagonaAbajolDer
+    jmp     seMOvioparaDiagonaAbajolIzq
+
+diagonalArribaIzqoDer:
+    cmp     cl,1
+    je      seMovioparaDiagonaArribalIzq
+    jmp     seMovioparaDiagonaArribalDer
+arribaoabajo:  
+    cmp     bl,1
+    je      seMovioparaAbrriba
+    jmp     seMovioparaAbajo
+izqoder:
+    cmp     cl,1
+    je      seMovioparaIzq
+    jmp     seMovioparaDer
+    
+seMovioparaDiagonaAbajolDer:
+   
+seMOvioparaDiagonaAbajolIzq:  
+seMovioparaDiagonaArribalDer:   
+seMovioparaDiagonaArribalIzq:
+seMovioparaAbajo:   
+seMovioparaAbrriba:
+seMovioparaDer:
+seMovioparaIzq:
+    
+    ret
+
+; Función que incrementa el contador en la posición indicada en el r8
+incrementar: 
+    push    rbp
+    mov     rbp, rsp
+
+    ; Calcula la dirección del elemento a incrementar
+    mov     rcx, r12        ; Carga la dirección base del vector de movimientos en rcx
+    add     rcx, [r8]        ; Suma el índice para obtener la dirección del elemento
+
+    ; Incrementa el valor en la dirección calculada
+    inc     byte [rcx]
+    pop     rbp

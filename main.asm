@@ -9,7 +9,7 @@
 global main
 extern printf
 
-extern config_jugadores, imprimir_tablero, pos_zorro,vericar_ganadores, entrada_zorro
+extern config_jugadores, imprimir_tablero, pos_zorro,vericar_ganadores, entrada_zorro,oca_a_mover
 
 %macro imprimir 0
     xor rax,rax
@@ -25,9 +25,9 @@ section .data
 
     posNueva            db  0
     posOcaComida1       db  0
-    posOcaComida2       db  0
     desplazamiento      db  0
     turnoActual         db 'Z'
+    msjSalir            db 'Cuando sea tu turno seleccione S para salir del juego'; esto luego lo ponemos lindo
     
 section .bss
     jugadorZorro        resb 256
@@ -44,6 +44,7 @@ main:
     mov         [jugadorZorro], rsi  
     mov         [jugadorOca], rdi
 
+    mov         rdi,msjSalir
     call        imprimir_tablero
     add         rsp, 8
 
@@ -52,7 +53,11 @@ juego_zorro: ; --> bucle principal del juego
     sub         rsp, 8
     call        entrada_zorro
     add         rsp, 8
-
+    cmp         rdi,'S';habria que ver si funciona
+    je          finJuego        
+    call        imprimir_tablero
+finJuego:    
+    ret
     ; chequeo si terminó el juego, ya sea porque el zorro no
     ; tiene más movimientos, o porque el zorro comió 12 ocas
 ;     sub         rsp, 8

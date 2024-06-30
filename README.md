@@ -27,7 +27,7 @@ Implementación del juego _El Zorro y las Ocas_ en assembler Intel 80x86. El pro
 
 **Requerimento 2**
 - [ ] Permitir guardar la partida y poder recuperarla en otro momento en el mismo estado.
-- [ ] Mostrar estadísticas de movimiento del zorro al finalizar el juego. (cantidad de movimientos en cada uno de los sentidos posibles)
+- [x] Mostrar estadísticas de movimiento del zorro al finalizar el juego. (cantidad de movimientos en cada uno de los sentidos posibles)
 
 **Requerimento 3**
 - [x] Opción de personalización de partida.
