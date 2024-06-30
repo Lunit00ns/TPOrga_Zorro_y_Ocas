@@ -6,6 +6,14 @@ section .data
 
 section .text
 
+; Registros que utiliza:
+; rax, rbx, rcx, rdx
+
+; Parámetros: (2 posibles)
+; 1) Si se desea buscar por desplazamiento, colocar un 0 en rax y el desplazamiento en rdx
+; 2) Si se desea buscar por fil/col, colocar un 1 en rax (u otro valor distinto de cero),
+; y colocar la fila / columna en rbx / rcx.
+
 ; Este archivo tiene como función devolver lo que se encuentre en cierta posición del tablero.
 ; (En caso de ser una posición no válida devuelve -1)
 
