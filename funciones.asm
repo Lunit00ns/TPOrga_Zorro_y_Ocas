@@ -283,8 +283,6 @@ loop_imprimir:
     je em_oca
     cmp byte[r8], 'X'
     je em_zorro
-    ; En caso de no coincidir con ningún número, habría que
-    ; agregar un caso de "Excepción" (No sé si puede suceder).
 
 loop_imprimir_fin:
     dec r9 ; Decremento el largo

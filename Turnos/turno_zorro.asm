@@ -77,7 +77,6 @@ cambiarposiciones:
     call        pos_zorro
     add         rsp, 8
 
-    ;no se si funciona
     mov     r9w,[desplaz]
     mov     byte[r15 + r9],"X"
     
@@ -249,7 +248,6 @@ saltoSimpleAbajo:
    
 
 saltoSimpleArriba:
-    ;espero que funcione :)
     cmp     bl,cl
     je     invalido
 
@@ -277,7 +275,6 @@ saltoSimpleArriba:
     jmp     movimientoValido
 
 saltoSimpleIzq:
-    ;espero que funcione :)
     cmp     bl,cl
     je     invalido
 
@@ -305,7 +302,6 @@ saltoSimpleIzq:
     jmp     movimientoValido
 
 saltoSimpleDerecha:
-    ;espero que funcione :)
     cmp     bl,cl
     je     invalido
 

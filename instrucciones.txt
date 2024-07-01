@@ -1,0 +1,12 @@
+Para compilar y ejecutar el programa:
+
+nasm main.asm -f elf64
+nasm configuracion.asm -f elf64
+nasm verificarGanadores.asm -f elf64
+nasm finalizacion.asm -f elf64
+nasm funciones.asm -f elf64
+nasm archivos.asm -f elf64
+nasm Turnos/turno_zorro.asm -f elf64
+nasm Turnos/turno_oca.asm -f elf64
+gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o archivos.o -no-pie -o programa
+./programa

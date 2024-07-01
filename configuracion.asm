@@ -3,8 +3,6 @@ global config_jugadores
 extern printf, sscanf, puts
 extern gets
 
-
-
 %macro imprimir 0
     xor rax, rax
     sub rsp,8 
@@ -268,7 +266,7 @@ orientacion_izquierda:
     ret
 
 config_predeterminada:
-    mov         r15, tableroPrueba
+    mov         r15, tableroArriba
     mov         rdi, msjPersoDefault
     imprimir
 

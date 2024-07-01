@@ -20,7 +20,7 @@ section .data
                         db  '| Las Ocas acorralaron al Zorro |',10
                         db  '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~',10,0
 
-    msAbandono          db  'Abandonaste la partida 😢',10,0
+    msAbandono          db  'Abandonaste 😢 Pero la partida se guardó correctamente',10,0
 
     cantMovRectos       db '----- Estadísiticas de movimientos del zorro -----',10
                         db '- Movimientos rectos:',10

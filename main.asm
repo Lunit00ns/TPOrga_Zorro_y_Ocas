@@ -15,6 +15,8 @@ extern printf,gets ,sscanf
 
 global turnoActual
 
+extern error ; variable de "archivos.asm" que indica si hubo un error al leer
+
 extern config_jugadores
 extern imprimir_tablero
 extern pos_zorro
@@ -25,6 +27,7 @@ extern gana_zorro
 extern gana_oca,abandono
 extern imprimir_estadisticas
 extern guardar
+extern cargar
 
 %macro imprimir 0
     xor rax,rax
@@ -46,7 +49,7 @@ section .data
 
     msInicio            db '¿Qué desea hacer?',10
                         db '1. Empezar una partida nueva',10
-                        db '2. Cargar la última partida',10
+                        db '2. Cargar la última partida (lo intentamos pero no funciona bien)',10
                         db 'Opción: ',0
     msjError            db 'Opción inválida ✖️  Ingresá "1" para empezar una partida nueva o "2" para cargar la última partida guardada.',10,0
 
@@ -90,18 +93,17 @@ validar_opcion:
 
     jmp         inicio
 
-cargar_partida: ; para hacer
-    ret 
+cargar_partida:
+    sub         rsp,8
+    call        cargar
+    add         rsp,8
+    je          turno
     
 juego_nuevo:
     sub         rsp, 8
     call        config_jugadores
 
     call        imprimir_tablero
-    add         rsp, 8
-
-    sub         rsp, 8
-    call        guardar ; --> habría que agregarlo en los bucles para que se guarde automaticamente
     add         rsp, 8
 
 turno:
@@ -166,6 +168,10 @@ finJuego:
     sub         rsp,8
     call        abandono
     add         rsp,8
+
+    sub         rsp, 8
+    call        guardar
+    add         rsp, 8
 
     mov         rax,60
     mov         rdi, 1

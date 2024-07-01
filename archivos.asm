@@ -1,4 +1,5 @@
 global guardar, cargar
+
 extern puts, fopen, fclose, fwrite, printf
 
 extern turnoActual
@@ -29,13 +30,35 @@ section .data
     modoLectura         db 'r',0
 
     msjError            db 'Error en apertura de archivo.',0
+    msjErrorCargar      db 'Error al cargar la partida ✖️  Verificá que exista un archivo "partidaGuardada.dat" e intenta nuevamente.',10,0
 
     saltoLinea          db 10,0
+
+    tablero             db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' ',
+                        db  ' ',' ',' ',' ',' ',' ',' ',' ',' '
+    emoji_zorro         db '🦊'
+    emoji_oca           db '🦊'
+    turno               db 0
+    v_direccion         db 0
+    movimientos         db 0, 0, 0, 0, 0, 0, 0, 0
 
 section .bss
     fileHandle          resq 1 
 
 section .text
+
+; --------------- Función guardar partida ---------------
+; Registros que utiliza:
+; r15, r14, r13
+
+; Escribe en el archivo 'partidaGuardada.dat' los datos de la partida
 guardar:
     mov     rdi,nombreArchivo
     mov     rsi,modoEscritura
@@ -69,38 +92,11 @@ archivoAbierto:
     escribir 1
 
     mov     rdi, direccion
-    add     byte[rdi], 48
     escribir 1
 
-    mov r8, r12
-    mov rbx, 0
-
-sumar_movimientos:
-    cmp rbx, 8
-    je continuar
-    add byte[r8], 48
-    inc r8
-    inc rbx
-    jmp sumar_movimientos
-
-continuar:
     mov     rdi, r12
-    mov     rsi, 8
-    mov     rdx, 1
-    mov     rcx, [fileHandle]
-    call    fwrite
-    imprimirSaltoLinea
+    escribir 8
 
-    mov r8, r12
-    mov rbx, 0
-
-restar_movimientos:
-    cmp rbx, 8
-    je cerrar
-    sub byte[r8], 48
-    inc r8
-    inc rbx
-    jmp restar_movimientos
 
 cerrar:
     ; Cierro el archivo
@@ -108,6 +104,74 @@ cerrar:
     sub     rsp,8
     call    fclose 
     add     rsp,8
+
+    ret ; por las dudas
+
+; --------------- Función cargar partida ---------------
+; Registros que utiliza:
+; r15, r14, r13
+
+; Escribe en el archivo 'partidaGuardada.dat' los datos de la partida
+cargar:
+    xor rax, rax
+    add al, 2
+    lea rdi, [nombreArchivo]
+    xor rsi, rsi
+    syscall    
+
+    ;cmp rax, 0 ; si no existe el archivo
+    ;je errorLectura
+
+    mov rdi, rax
+    sub sp, 0xfff
+    lea rsi, [rsp]
+    xor rdx, rdx
+    mov dx, 0x200
+    xor rax, rax
+    syscall
+
+    ;cmp rsi, 0 ; si está vacío el archivo
+    ;je errorLectura
+
+    lea rdi, [tablero]
+    mov rcx, 81
+    rep movsb
+    lea r15, tablero
+
+    add rsi, 1
+    lea rdi, [emoji_zorro]
+    mov rcx, 4
+    rep movsb
+    lea r13, [emoji_zorro]
+
+    add rsi, 1
+    lea rdi, [emoji_oca]
+    mov rcx, 4
+    rep movsb
+    lea r14, [emoji_oca]
+
+    add rsi, 1
+    lea rdi, turnoActual
+    mov rcx, 1
+    rep movsb
+
+    add rsi, 1
+    lea rdi, direccion
+    mov rcx, 1
+    rep movsb
+
+    add rsi, 1
+    lea rdi, [movimientos]
+    mov rcx, 8
+    rep movsb
+    lea r12, [movimientos]
+
+    xor rax,rax
+    add al, 6
+    syscall
+
+errorLectura:
+    ret
 
 fin:
     ret
