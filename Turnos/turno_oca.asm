@@ -17,7 +17,7 @@ extern direccion
 
 section .data       
     msjIngOca           db  "¿Qué oca desea mover? ",10
-                        db  "~ Ingrese fila y columna separados por un espacio de la oca a mover, o 'S' para salir: ",0
+                        db  "~ Ingrese fila y columna, separados por un espacio, de la oca a mover, o 'S' para salir: ",0
     msjIngFilCol        db	"¿A dónde desea mover a la oca? ",0
     formatInputFilCol	db	"%hi %hi",0
     msjErrorInput       db  "La casilla ingresada es inválida ✖️  Intente nuevamente.",0
@@ -28,11 +28,11 @@ section .bss
 	filaOca             resw    1
     columnaOca          resw    1
     inputFilCol		    resb	50
-    inputFilColAMover		    resb	50
+    inputFilColAMover   resb	50
    	fila			    resw	1
 	columna			    resw	1 	
     inputValido         resb    1   ;S valido N invalido
-    inputValido2         resb    1
+    inputValido2        resb    1
     desplaz			    resw	1
     desplazOca          resw    1
     deltax              resb    1

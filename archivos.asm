@@ -24,7 +24,7 @@ extern direccion
 %endmacro
 
 section .data
-    nombreArchivo       db 'partidaGuardada.txt',0
+    nombreArchivo       db 'partidaGuardada.dat',0
     modoEscritura       db 'w',0  
     modoLectura         db 'r',0
 
@@ -75,13 +75,13 @@ archivoAbierto:
     mov r8, r12
     mov rbx, 0
 
-bucle_movimientos:
+sumar_movimientos:
     cmp rbx, 8
     je continuar
     add byte[r8], 48
     inc r8
     inc rbx
-    jmp bucle_movimientos
+    jmp sumar_movimientos
 
 continuar:
     mov     rdi, r12
@@ -90,6 +90,24 @@ continuar:
     mov     rcx, [fileHandle]
     call    fwrite
     imprimirSaltoLinea
+
+    mov r8, r12
+    mov rbx, 0
+
+restar_movimientos:
+    cmp rbx, 8
+    je cerrar
+    sub byte[r8], 48
+    inc r8
+    inc rbx
+    jmp restar_movimientos
+
+cerrar:
+    ; Cierro el archivo
+    mov     rdi, [fileHandle]
+    sub     rsp,8
+    call    fclose 
+    add     rsp,8
 
 fin:
     ret

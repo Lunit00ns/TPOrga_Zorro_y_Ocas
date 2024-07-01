@@ -7,7 +7,7 @@
 ; nasm archivos.asm -f elf64
 ; nasm Turnos/turno_zorro.asm -f elf64
 ; nasm Turnos/turno_oca.asm -f elf64
-; gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o pruebas.o -no-pie -o programa
+; gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o archivos.o -no-pie -o programa
 ; ./programa
 ; --------------------------------------------------------
 global main, turno
@@ -15,7 +15,16 @@ extern printf,gets ,sscanf
 
 global turnoActual
 
-extern config_jugadores, imprimir_tablero, pos_zorro, verificar_ganadores, entrada_zorro, oca_a_mover, gana_zorro, gana_oca,abandono, imprimir_estadisticas, guardar2
+extern config_jugadores
+extern imprimir_tablero
+extern pos_zorro
+extern verificar_ganadores
+extern entrada_zorro
+extern oca_a_mover
+extern gana_zorro
+extern gana_oca,abandono
+extern imprimir_estadisticas
+extern guardar
 
 %macro imprimir 0
     xor rax,rax
@@ -39,15 +48,10 @@ section .data
                         db '1. Empezar una partida nueva',10
                         db '2. Cargar la última partida',10
                         db 'Opción: ',0
-    msjError            db 'Opción inválida ✖️  Ingresá "1" para una partida nueva o "2" para cargar partida.',10,0
-
-    msjOK               db  'TODO OK',10,0
+    msjError            db 'Opción inválida ✖️  Ingresá "1" para empezar una partida nueva o "2" para cargar la última partida guardada.',10,0
 
     formatoOpcion       db  '%hi',0
 
-    posNueva            db  0
-    posOcaComida1       db  0
-    desplazamiento      db  0
     turnoActual         db 'Z'
 
 section .bss
@@ -86,10 +90,6 @@ validar_opcion:
 
     jmp         inicio
 
-opcion_seleccionada:
-    mov         rdi,msjOK
-    imprimir
-
 cargar_partida: ; para hacer
     ret 
     
@@ -98,6 +98,10 @@ juego_nuevo:
     call        config_jugadores
 
     call        imprimir_tablero
+    add         rsp, 8
+
+    sub         rsp, 8
+    call        guardar ; --> habría que agregarlo en los bucles para que se guarde automaticamente
     add         rsp, 8
 
 turno:
