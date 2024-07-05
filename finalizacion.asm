@@ -56,6 +56,18 @@ abandono:
     ret
 
 imprimir_estadisticas:
+    mov r8, r12
+    mov rbx, 0
+
+bucle_movimientos:
+    cmp rbx, 8
+    je continuar
+    sub byte[r8], 48
+    inc r8
+    inc rbx
+    jmp bucle_movimientos
+
+continuar:
     mov rdi, cantMovRectos
     movzx rsi, byte [r12 + 1]   ; Arriba
     movzx rdx, byte [r12 + 3]   ; Derecha

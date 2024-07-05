@@ -24,13 +24,21 @@ extern direccion
     call    fwrite
 %endmacro
 
+%macro imprimir 0
+    xor rax,rax
+    sub rsp,8 
+    call printf
+    add rsp,8 
+%endmacro
+
 section .data
     nombreArchivo       db 'partidaGuardada.dat',0
     modoEscritura       db 'w',0  
     modoLectura         db 'r',0
 
     msjError            db 'Error en apertura de archivo.',0
-    msjErrorCargar      db 'Error al cargar la partida ✖️  Verificá que exista un archivo "partidaGuardada.dat" e intenta nuevamente.',10,0
+    msjTodoOk           db 'Partida cargada correctamente ✔️',10,0
+    msjErrorCargar      db 'Error al cargar la partida ✖️ Verificá que exista un archivo "partidaGuardada.dat" válido e intenta nuevamente.',10,0
 
     saltoLinea          db 10,0
 
@@ -97,7 +105,6 @@ archivoAbierto:
     mov     rdi, r12
     escribir 8
 
-
 cerrar:
     ; Cierro el archivo
     mov     rdi, [fileHandle]
@@ -106,6 +113,9 @@ cerrar:
     add     rsp,8
 
     ret ; por las dudas
+
+fin:
+    ret
 
 ; --------------- Función cargar partida ---------------
 ; Registros que utiliza:
@@ -119,8 +129,8 @@ cargar:
     xor rsi, rsi
     syscall    
 
-    ;cmp rax, 0 ; si no existe el archivo
-    ;je errorLectura
+    cmp rax, 0 ; si no existe el archivo
+    jl errorLectura
 
     mov rdi, rax
     sub sp, 0xfff
@@ -130,25 +140,22 @@ cargar:
     xor rax, rax
     syscall
 
-    ;cmp rsi, 0 ; si está vacío el archivo
-    ;je errorLectura
-
     lea rdi, [tablero]
     mov rcx, 81
     rep movsb
     lea r15, tablero
 
     add rsi, 1
-    lea rdi, [emoji_zorro]
-    mov rcx, 4
-    rep movsb
-    lea r13, [emoji_zorro]
-
-    add rsi, 1
     lea rdi, [emoji_oca]
     mov rcx, 4
     rep movsb
-    lea r14, [emoji_oca]
+    lea r13, [emoji_oca]
+
+    add rsi, 1
+    lea rdi, [emoji_zorro]
+    mov rcx, 4
+    rep movsb
+    lea r14, [emoji_zorro]
 
     add rsi, 1
     lea rdi, turnoActual
@@ -166,12 +173,21 @@ cargar:
     rep movsb
     lea r12, [movimientos]
 
-    xor rax,rax
-    add al, 6
-    syscall
+    add rsp, 0xfff
 
-errorLectura:
+    xor rax, rax
+
+    mov rdi, msjTodoOk
+    imprimir
+
     ret
 
-fin:
+errorLectura:
+    mov rdi, msjErrorCargar
+    imprimir  
+
+    mov rax,60
+    xor rdi,rdi
+    syscall
+       
     ret

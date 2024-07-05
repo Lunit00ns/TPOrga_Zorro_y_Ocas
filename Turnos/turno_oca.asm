@@ -20,7 +20,9 @@ section .data
                         db  "~ Ingrese fila y columna, separados por un espacio, de la oca a mover, o 'S' para salir: ",0
     msjIngFilCol        db	"¿A dónde desea mover a la oca? ",0
     formatInputFilCol	db	"%hi %hi",0
-    msjErrorInput       db  "La casilla ingresada es inválida ✖️  Intente nuevamente.",0
+    msjErrorInput       db  "La casilla ingresada es inválida ✖️ Intente nuevamente. ",0
+    msjErrorAtras       db  "-- No se pueden mover las ocas hacia atrás --",10,0
+    msjOcaEncerrada     db  '-- La oca seleccionada está encerrada 😞 --',10,0
     msjInputOK          db  "Casilla ingresada correctamente ✔️",10,0
     salir               db  'N'
 
@@ -51,7 +53,7 @@ oca_a_mover:
     call    validarFyC
     add     rsp,8
     cmp     byte[inputValido],'S'
-    je     entrada_oca
+    je      entrada_oca
     cmp     byte[inputFilCol],'S'
     je      fin
     
@@ -147,6 +149,63 @@ validarPosicion:
     
     cmp     al,'O'
     jne     invalido
+
+verif_oca_libre:
+    mov     ebx,[desplazOca]
+    movzx   ecx,bl
+    sub rcx, 1
+    sub     eax,eax 
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+
+    cmp     al,' '
+    je     oca_libre
+
+    mov     ebx,[desplazOca]
+    movzx   ecx,bl
+    sub rcx, 9
+    sub     eax,eax 
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+
+    cmp     al,' '
+    je     oca_libre
+
+    mov     ebx,[desplazOca]
+    movzx   ecx,bl
+    add rcx, 1
+    sub     eax,eax 
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+
+    cmp     al,' '
+    je     oca_libre
+
+    mov     ebx,[desplazOca]
+    movzx   ecx,bl
+    add rcx, 9
+    sub     eax,eax 
+    mov     [matriz],r15
+    mov     rdx,[matriz]
+    add     rdx,rcx
+    mov     rax,[rdx]
+
+    cmp     al,' '
+    je     oca_libre
+
+oca_encerrada:
+    mov rdi,msjOcaEncerrada
+    imprimir
+
+    jmp invalido
+
+oca_libre:
     mov     byte[inputValido],'S'
     
     mov     rdi,msjInputOK
@@ -172,12 +231,12 @@ validarFyCADondeMover:
 
     cmp     word[filaOca],1
     jl      invalido
-    cmp     word[filaOca],7
+    cmp     word[filaOca],9
     jg      invalido
 
     cmp     word[columnaOca],1
     jl      invalido
-    cmp     word[columnaOca],7
+    cmp     word[columnaOca],9
     jg      invalido
     
 
@@ -226,14 +285,21 @@ verificarSalto:
     mov     cl,[desplaz]
     mov     al,[desplazOca]
     sub     cl,al
+
+    add cl, 57
+
     cmp     byte[direccion],cl
-    je      invalido
+    je      movAtras
     
     jmp     movimientoValido
     
-
 movimientoValido:
     mov     byte[inputValido2],'S'
     ret
+
+movAtras:
+    mov rdi,msjErrorAtras
+    imprimir
+
 invalido:
     ret

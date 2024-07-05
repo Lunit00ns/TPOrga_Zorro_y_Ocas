@@ -26,11 +26,8 @@ Implementación del juego _El Zorro y las Ocas_ en assembler Intel 80x86. El pro
 - [x] Identificar automáticamente cuando el juego llegó a su fin indicado el motivo. (por haber comido el zorro 12 ocas o por quedar el zorro “acorralado” sin poder moverse)
 
 **Requerimiento 2**
-- [\] Permitir guardar la partida y poder recuperarla en otro momento en el mismo estado.
+- [x] Permitir guardar la partida y poder recuperarla en otro momento en el mismo estado.
 - [x] Mostrar estadísticas de movimiento del zorro al finalizar el juego. (cantidad de movimientos en cada uno de los sentidos posibles)
 
 **Requerimiento 3**
 - [x] Opción de personalización de partida.
-
-## Errores:
-- Se guarda la partida bien cada vez que el usuario sale del juego. Cuando quiere cargar la última partida guardada, falla (posiblemente por las variables globales)

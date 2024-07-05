@@ -1,21 +1,7 @@
-; --------------------------------------------------------
-; nasm main.asm -f elf64
-; nasm configuracion.asm -f elf64
-; nasm verificarGanadores.asm -f elf64
-; nasm finalizacion.asm -f elf64
-; nasm funciones.asm -f elf64
-; nasm archivos.asm -f elf64
-; nasm Turnos/turno_zorro.asm -f elf64
-; nasm Turnos/turno_oca.asm -f elf64
-; gcc main.o configuracion.o verificarGanadores.o finalizacion.o funciones.o Turnos/turno_zorro.o Turnos/turno_oca.o archivos.o -no-pie -o programa
-; ./programa
-; --------------------------------------------------------
 global main, turno
 extern printf,gets ,sscanf
 
 global turnoActual
-
-extern error ; variable de "archivos.asm" que indica si hubo un error al leer
 
 extern config_jugadores
 extern imprimir_tablero
@@ -49,9 +35,9 @@ section .data
 
     msInicio            db '¿Qué desea hacer?',10
                         db '1. Empezar una partida nueva',10
-                        db '2. Cargar la última partida (lo intentamos pero no funciona bien)',10
+                        db '2. Cargar la última partida',10
                         db 'Opción: ',0
-    msjError            db 'Opción inválida ✖️  Ingresá "1" para empezar una partida nueva o "2" para cargar la última partida guardada.',10,0
+    msjError            db 'Opción inválida ✖️ Ingresá "1" para empezar una partida nueva o "2" para cargar la última partida guardada.',10,0
 
     formatoOpcion       db  '%hi',0
 
@@ -96,8 +82,11 @@ validar_opcion:
 cargar_partida:
     sub         rsp,8
     call        cargar
-    add         rsp,8
-    je          turno
+
+    call        imprimir_tablero
+    add         rsp, 8
+
+    jmp         turno
     
 juego_nuevo:
     sub         rsp, 8

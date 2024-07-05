@@ -103,8 +103,8 @@ section .data
                         db  '-','-','-','-','-','-','-','-','-'
 
     formatoOpcion       db  '%hi',0
-    movimientos         db  0,0,0,0,0,0,0,0
-    direccion           db  -9
+    movimientos         db  48,48,48,48,48,48,48,48
+    direccion           db  48
 
 section .bss
     OpcionPerso         resb 1
@@ -244,25 +244,25 @@ tablero_seleccionado:
 orientacion_arriba:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroArriba
-    mov         byte[direccion], -9
+    mov         byte[direccion], 48
     ret
 
 orientacion_derecha:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroDerecha
-    mov         byte[direccion], 1
+    mov         byte[direccion], 58
     ret
 
 orientacion_abajo:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroAbajo
-    mov         byte[direccion], 9
+    mov         byte[direccion], 66
     ret
 
 orientacion_izquierda:
     mov         byte[OpcionValida],'S'
     mov         r15, tableroIzquierda
-    mov         byte[direccion], -1
+    mov         byte[direccion], 56
     ret
 
 config_predeterminada:
